@@ -31,8 +31,15 @@ class Entry(object):
     """
 
     def __init__(self, filename, timezone=utc):
-        self.data = plistlib.readPlist(filename)
-        assert "Creation Date" in self.data and "Entry Text" in self.data
+        try:
+            self.data = plistlib.readPlist(filename)
+        except Exception as err:
+            raise IOError("Can't read {}\n{}".format(filename, err))
+
+        if "Creation Date" not in self.data:
+            raise KeyError("{} is missing Creation Date".format(filename))
+        if "Entry Text" not in self.data:
+            raise KeyError("{} is missing Entry Text".format(filename))
         self.data['Creation Date'] = utc.localize(
             self.data['Creation Date']).astimezone(timezone)
         print self.data['Creation Date']
@@ -135,13 +142,21 @@ def parse_journal(foldername, timezone=utc, reverse=False):
               timezone=timezone)
             journal[entry['UUID']] = entry
 
-    for filename in os.listdir(os.path.join(foldername, 'photos')):
-        base = os.path.splitext(filename)[0]
-        try:
-            journal[base].add_photo(os.path.join('photos', filename))
-        except KeyError:
-            # ignore things in the photos folder with no corresponding entry
-            pass
+    if len(journal) == 0:
+        raise Exception("No journal entries found in " + foldername)
+
+    try:
+        photos = os.listdir(os.path.join(foldername, 'photos'))
+    except OSError:
+        pass
+    else:
+        for filename in photos:
+            base = os.path.splitext(filename)[0]
+            try:
+                journal[base].add_photo(os.path.join('photos', filename))
+            except KeyError:
+                # ignore items in the photos folder with no corresponding entry
+                pass
 
     # make it a list and sort
     journal = journal.values()
@@ -179,6 +194,9 @@ def dayone_export(dayone_folder, template="template.html", timezone=utc,
     # parse journal
     j = parse_journal(dayone_folder, timezone=timezone, reverse=reverse)
 
+    # may throw an exception if the template is malformed
+    # the traceback is helpful, so i'm letting it through
+    # it might be nice to clean up the error message, someday
     return template.render(journal=j)
 
 def parse_args():
@@ -257,9 +275,27 @@ if __name__ == "__main__":
     if args.journal is None:
         sys.exit("Error: too few arguments")
 
-    with codecs.open(args.output, 'w', encoding='utf-8') as f:
-        f.write(dayone_export(args.journal, template=args.template,
-          timezone=tz, reverse=args.reverse))
+    # Check files exist
+    args.journal = os.path.expanduser(args.journal)
+    if not os.path.exists(args.journal):
+        sys.exit("File not found: " + args.journal)
+    if not os.path.exists(os.path.join(args.journal, 'entries')):
+        sys.exit("Not a valid Day One package: " + args.journal)
+    if not os.path.exists(args.template):
+        sys.exit("File not found: " + args.template)
+
+
+    try:
+        output = dayone_export(args.journal, template=args.template,
+          timezone=tz, reverse=args.reverse)
+    except IOError as err:
+        sys.exit(err)
+
+    try:
+        with codecs.open(args.output, 'w', encoding='utf-8') as f:
+            f.write(output)
+    except IOError as err:
+        sys.exit(err)
 
     print "Output written to {}".format(args.output)
 
