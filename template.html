@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Journal Entries</title>
+    <link rel="stylesheet" href="style.css" type="text/css">
+    <meta charset="UTF-8" />
+</head>
+<body>
+<h1 class="page-title">Journal Entries</h1>
+{% for entry in journal %}
+<article class="entry">
+    <h1 class="entry-title">{{ entry['Date'].strftime('%A, %b %e, %Y') }}</h1>
+    <p class="location time">
+        {% if 'Location' in entry %}
+        {{ entry.place(ignore="United States") }},
+        {% endif %}
+        {{ entry['Date'].strftime("%-I:%M %p %Z") }}
+    </p>
+    <div class="entry-text">
+        {% if 'Photo' in entry %}
+        <img class="entry-photo" src="{{ entry['Photo']  }}"/>
+        {% endif %}
+        {{ entry['Text'] | markdown }}
+    </div>
+</article>
+{% endfor %}
+</body>
+</html>
