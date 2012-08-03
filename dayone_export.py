@@ -33,8 +33,9 @@ class Entry(object):
     def __init__(self, filename, timezone=utc):
         self.data = plistlib.readPlist(filename)
         assert "Creation Date" in self.data and "Entry Text" in self.data
-        self.data['Creation Date'] = timezone.localize(
+        self.data['Creation Date'] = utc.localize(
             self.data['Creation Date']).astimezone(timezone)
+        print self.data['Creation Date']
 
     def add_photo(self, filename):
         self.data['Photo'] = filename
