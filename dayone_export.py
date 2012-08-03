@@ -8,8 +8,6 @@ import datetime
 import codecs
 import sys
 import os
-try: import markdown
-except: print "Markdown module is required for the markdown filter to work"
 
 SUBKEYS = {'Location': ['Locality', 'Country', 'Place Name',
                  'Administrative Area', 'Longitude', 'Latitude'],
@@ -158,8 +156,20 @@ def dayone_export(dayone_folder, template="template.html", timezone=utc,
     env = Environment(loader=FileSystemLoader(path), trim_blocks=True)
 
     # markdown
-    def markup(text, *args, **kwargs):
-        return markdown.markdown(text, *args, **kwargs)
+    try:
+        import markdown
+    except:
+        global need_markdown_warning
+        need_markdown_warning = True
+        def markup(text, *args, **kwargs):
+            global need_markdown_warning
+            if need_markdown_warning:
+                need_markdown_warning = False
+                print "Warning: cannot load markdown module"
+            return text
+    else:
+        def markup(text, *args, **kwargs):
+            return markdown.markdown(text, *args, **kwargs)
     env.filters['markdown'] = markup
 
     # load template
