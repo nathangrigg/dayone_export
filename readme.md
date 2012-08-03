@@ -15,8 +15,8 @@ and you are ready to go.
 
 # Usage
 
-    usage: dayone.py [-h] [--template FILE] [--output FILE]
-                     [--timezone ZONE] [--reverse] journal
+    usage: dayone_export.py [-h] [--template FILE] [--output FILE]
+                            [--timezone ZONE] [--reverse] journal
 
     Export Day One entries using a jinja template
 
