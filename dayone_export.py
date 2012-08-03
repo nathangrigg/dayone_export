@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from jinja2 import Environment, FileSystemLoader
-from pytz import timezone, utc
+from pytz import timezone, utc, UnknownTimeZoneError
 from operator import itemgetter
 import plistlib
 import datetime
@@ -42,7 +42,6 @@ class Entry(object):
             raise KeyError("{} is missing Entry Text".format(filename))
         self.data['Creation Date'] = utc.localize(
             self.data['Creation Date']).astimezone(timezone)
-        print self.data['Creation Date']
 
     def add_photo(self, filename):
         self.data['Photo'] = filename
