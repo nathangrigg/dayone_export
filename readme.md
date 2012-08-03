@@ -1,10 +1,11 @@
-Export [Day One][0] journal entries into any other format using a jinja
-template.
+Export [Day One][0] journal entries into html, text, or another format
+using a jinja template.
 
 # Requirements
 
-Requires [jinja2][1] for templating and [pytz][2] for time zone support.
-Optionally uses python [markdown][3] to convert posts to html.
+- [jinja2][1] for templating
+- [pytz][2] for time zone support.
+- [markdown][3] (optional) to convert entries to html.
 
 If you have [pip][4] installed, you can run
 
@@ -35,7 +36,7 @@ and you are ready to go.
 
 # Templates
 
-## Basic example
+## Basic template example
 
     Journal Entries
     ===============
