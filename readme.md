@@ -1,4 +1,5 @@
-Export Day One journal entries into any other format using a jinja template.
+Export [Day One][0] journal entries into any other format using a jinja
+template.
 
 # Requirements
 
@@ -116,6 +117,7 @@ This converts the text to html.
 For more details on jinja templates, see the
 [Jinja template designer documentation][5].
 
+[0]: http://dayoneapp.com
 [1]: http://jinja.pocoo.org
 [2]: http://pytz.sourceforge.net
 [3]: http://freewisdom.org/projects/python-markdown/
