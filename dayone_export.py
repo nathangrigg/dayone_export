@@ -1,4 +1,4 @@
-#! /usr/local/bin/python
+#! /usr/bin/python
 
 from jinja2 import Environment, FileSystemLoader
 from pytz import timezone, utc
