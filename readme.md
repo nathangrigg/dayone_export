@@ -13,6 +13,15 @@ If you have [pip][4] installed, you can run
 
 and you are ready to go.
 
+# Quick start
+
+After you have installed the dependencies and downloaded the script,
+`cd` into the `dayone_export` directory and run
+
+    ./dayone_export.py ~/Dropbox/Apps/"Day One"/Journal.dayone
+
+Adjust the argument to be the path to your Day One journal.
+
 # Usage
 
     usage: dayone_export.py [-h] [--template FILE] [--output FILE]
