@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 
 from jinja2 import Environment, FileSystemLoader
 from pytz import timezone, utc
@@ -214,7 +214,7 @@ def parse_args():
       default="template.html", help="template file")
     parser.add_argument('--output', metavar="FILE", help="output file")
     parser.add_argument('--timezone', metavar="ZONE",
-      help='time zone name. Use `--timezone "?"` for more info')
+      help='time zone name. Use --timezone "?" for more info')
     parser.add_argument('--reverse', action="store_true",
       help="Display in reverse chronological order")
     parser.add_argument('journal', help="path to Day One journal package",
@@ -244,8 +244,11 @@ def timezone_help(s):
             print z
         else:
             print "{: <34}".format(z),
+    if not i % 2 and sys.stdout.isatty():
+        print
 
-    print """For information about time zone choices use one of the following:
+    print """\
+For information about time zone choices use one of the following options:
     --timezone "?"   print common time zones
     --timezone "??"  print all time zones
     --timezone "?XX" all time zones in country with two-letter code XX"""
