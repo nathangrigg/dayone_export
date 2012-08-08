@@ -1,5 +1,7 @@
 Export [Day One][0] journal entries into html, text, or another format
-using a jinja template.
+using a Jinja template.
+
+by Nathan Grigg
 
 # Requirements
 
@@ -27,7 +29,7 @@ Adjust the argument to be the path to your Day One journal.
     usage: dayone_export.py [-h] [--template FILE] [--output FILE]
                             [--timezone ZONE] [--reverse] journal
 
-    Export Day One entries using a jinja template
+    Export Day One entries using a Jinja template
 
     positional arguments:
       journal          path to Day One journal package
@@ -36,7 +38,7 @@ Adjust the argument to be the path to your Day One journal.
       -h, --help       show this help message and exit
       --template FILE  template file
       --output FILE    output file
-      --timezone ZONE  time zone name. Use `--timezone "?"` for more info
+      --timezone ZONE  time zone name. Use --timezone "?" for more info
       --reverse        Display in reverse chronological order
 
     Photos are not copied from the Day One package. If it has photos you will
@@ -124,7 +126,7 @@ This converts the text to html.
 
 ## More templating information
 
-For more details on jinja templates, see the
+For more details on Jinja templates, see the
 [Jinja template designer documentation][5].
 
 [0]: http://dayoneapp.com

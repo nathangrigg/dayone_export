@@ -248,7 +248,7 @@ def parse_args():
     """Parse command line arguments"""
     import argparse
     parser = argparse.ArgumentParser(
-      description="Export Day One entries using a jinja template",
+      description="Export Day One entries using a Jinja template",
       usage="""%(prog)s [-h] [--template FILE] [--output FILE]
                  [--timezone ZONE] [--reverse] journal""",
       epilog="""Photos are not copied from the Day One package.
