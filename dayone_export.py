@@ -29,6 +29,20 @@
 #
 # (also known as the New BSD License)
 
+"""Export Day One journal entries using a Jinja template.
+
+The function dayone_export fills in a template. This function
+can also be called using a command line interface. Run the script
+with the --help argument for more information.
+
+The Entry object represents a single journal entry.
+
+The parse_journal function parses the journal into a list of
+Entry objects.
+
+The module also makes the timezone function from pytz available.
+"""
+
 from jinja2 import Environment, FileSystemLoader
 from pytz import timezone, utc, UnknownTimeZoneError
 from operator import itemgetter
@@ -57,6 +71,9 @@ class Entry(object):
     The Location and Weather keys point to second level dictionaries.
     The subkeys are in the SUBKEYS constant, and can be accessed
     directly, that is, entry['Location']['Longitude'] == entry['Longitude']
+
+    The place function provides a flexible way to combine the location
+    data.
     """
 
     def __init__(self, filename, timezone=utc):
@@ -161,7 +178,7 @@ class Entry(object):
           "%Y-%m-%dT%H:%M:%S%z"))
 
 def parse_journal(foldername, timezone=utc, reverse=False):
-    """returns a list of Entry objects, sorted by date"""
+    """Return a list of Entry objects, sorted by date"""
 
     journal = dict()
     for filename in os.listdir(os.path.join(foldername, 'entries')):
