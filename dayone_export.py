@@ -86,6 +86,15 @@ class Entry(object):
         if "Entry Text" not in self.data:
             raise KeyError("{} is missing Entry Text".format(filename))
 
+        words = self.data['Entry Text'].split()
+        tags = []
+        for word in reversed(words):
+            if not word.startswith('#'):
+                break
+            tags.append(word[1:])
+
+        self.data['Tags'] = tags
+
     def add_photo(self, filename):
         self.data['Photo'] = filename
 
@@ -205,7 +214,7 @@ def parse_journal(foldername, reverse=False):
     return journal
 
 def dayone_export(dayone_folder, template="template.html", timezone='utc',
-  reverse=False, after=None):
+  reverse=False, after=None, tags=None):
     """Combines dayone data using the template"""
 
     #setup jinja2
@@ -239,6 +248,14 @@ def dayone_export(dayone_folder, template="template.html", timezone='utc',
         after = times.to_universal(after, timezone=timezone)
         j = [item for item in j if item['Date'] > after]
 
+    if tags:
+        if tags == 'any':
+            tag_filter = lambda item: item['Tags']
+        else:
+            tag_filter = lambda item: set(item['Tags']).intersection(set(tags))
+
+        j = filter(tag_filter, j)
+
     # may throw an exception if the template is malformed
     # the traceback is helpful, so i'm letting it through
     # it might be nice to clean up the error message, someday
@@ -250,7 +267,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
       description="Export Day One entries using a Jinja template",
       usage="""%(prog)s [-h] [--template FILE] [--output FILE]
-                 [--timezone ZONE] [--after DATETIME] [--reverse] journal""",
+                 [--timezone ZONE] [--after DATETIME] [--tags TAGS ] [--reverse] journal""",
       epilog="""Photos are not copied from the Day One package.
         If it has photos you will need to copy the "photos" folder from
         inside the Day One package into the same directory as the output file.
@@ -262,6 +279,8 @@ def parse_args():
       help='time zone name. Use --timezone "?" for more info')
     parser.add_argument('--after',
       help='export entries published after this date')
+    parser.add_argument('--tags',
+      help='export entries with these comma-separated tags. Tag \'any\' has a special meaning.')
     parser.add_argument('--reverse', action="store_true",
       help="Display in reverse chronological order")
     parser.add_argument('journal', help="path to Day One journal package",
@@ -334,10 +353,14 @@ if __name__ == "__main__":
     if not os.path.exists(args.template):
         sys.exit("File not found: " + args.template)
 
+    tags = args.tags
+    if tags is not None:
+        if tags != 'any':
+            tags = tags.split(',')
 
     try:
         output = dayone_export(args.journal, template=args.template,
-          timezone=tz, reverse=args.reverse, after=args.after)
+          timezone=tz, reverse=args.reverse, after=args.after, tags=tags)
     except IOError as err:
         sys.exit(err)
 

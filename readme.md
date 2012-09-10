@@ -39,6 +39,9 @@ Adjust the argument to be the path to your Day One journal.
       --template FILE  template file
       --output FILE    output file
       --after DATETIME export only entries after the date
+      --tags TAGS      export entries with these comma-separated tags.
+                       Tag 'any' has a special meaning, it says to export
+                       entries with one or more tags.
       --timezone ZONE  time zone name. Use --timezone "?" for more info
       --reverse        Display in reverse chronological order
 
