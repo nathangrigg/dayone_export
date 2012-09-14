@@ -262,7 +262,7 @@ def dayone_export(dayone_folder, template="template.html", timezone='utc',
             im = Image.open(dayone_folder + "/" + infile)
             im.thumbnail(size, Image.ANTIALIAS)
             output = StringIO.StringIO()
-            im.save(output,"jpeg", optimize = True) # we assume that we get best compressions with jpeg
+            im.save(output,"jpeg") # we assume that we get best compressions with jpeg
             base64data = output.getvalue().encode("base64")
             return "data:image/jpeg;base64,%s" % (base64data)
     env.filters['imgbase64'] = imgbase64
