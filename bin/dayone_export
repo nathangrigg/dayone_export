@@ -4,6 +4,115 @@
 #
 # For help, run `dayone_export --help`
 
-import dayone_export
+from dayone_export import times, dayone_export
 import argparse
+import codecs
 
+def parse_args():
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(
+      description="Export Day One entries using a Jinja template",
+      usage="""%(prog)s [-h] [--template FILE] [--output FILE] [--tags TAGS ]
+                 [--timezone ZONE] [--after DATETIME] [--reverse] journal""",
+      epilog="""Photos are not copied from the Day One package.
+        If it has photos you will need to copy the "photos" folder from
+        inside the Day One package into the same directory as the output file.
+        """)
+    parser.add_argument('--template', metavar="FILE",
+      default="template.html", help="template file")
+    parser.add_argument('--output', metavar="FILE", help="output file")
+    parser.add_argument('--timezone', metavar="ZONE",
+      help='time zone name. Use --timezone "?" for more info')
+    parser.add_argument('--tags',
+      help='export entries with these comma-separated tags. Tag \'any\' has a special meaning.')
+    parser.add_argument('--after',
+      help='export entries published after this date')
+    parser.add_argument('--reverse', action="store_true",
+      help="Display in reverse chronological order")
+    parser.add_argument('journal', help="path to Day One journal package",
+      nargs="?")
+    return parser.parse_args()
+
+def timezone_help(s):
+    """Display help on time zone and exit"""
+    if s == '?':
+        title, zones = "Common time zones:", times.pytz.common_timezones
+    elif s == "??":
+        title, zones = "All possible time zones:", times.pytz.all_timezones
+    elif len(s) == 3:
+        title = "Time zones for country: " + s[1:]
+        try: zones = times.pytz.country_timezones(s[1:])
+        except KeyError:
+            title = "Unrecognized country code: " + s[1:]
+            zones = []
+    else:
+        title = "Unrecognized option: --timezone " + s
+        zones = []
+
+    print title
+    for i, z in enumerate(zones):
+        if i % 2 or not sys.stdout.isatty():
+            print z
+        else:
+            print "{: <34}".format(z),
+    if not i % 2 and sys.stdout.isatty():
+        print
+
+    print """\
+For information about time zone choices use one of the following options:
+    --timezone "?"   print common time zones
+    --timezone "??"  print all time zones
+    --timezone "?XX" all time zones in country with two-letter code XX"""
+
+    sys.exit()
+
+# command line interface
+if __name__ == "__main__":
+    args = parse_args()
+
+    # auto generate output file name if necessary
+    if args.output is None:
+        base, ext = os.path.splitext(args.template)
+        args.output = "journal" + ("-output" if base == "journal" else "") + ext
+
+    if args.timezone is None or len(args.timezone) == 0:
+        tz = 'utc'
+    elif args.timezone[0] == "?":
+        timezone_help(args.timezone)
+    else:
+        try:
+            tz = times.pytz.timezone(args.timezone)
+        except times.pytz.UnknownTimeZoneError:
+            sys.exit("Unknown time zone: " + args.timezone)
+
+    # Make sure there is a journal
+    if args.journal is None:
+        sys.exit("Error: too few arguments")
+
+    # Check files exist
+    args.journal = os.path.expanduser(args.journal)
+    if not os.path.exists(args.journal):
+        sys.exit("File not found: " + args.journal)
+    if not os.path.exists(os.path.join(args.journal, 'entries')):
+        sys.exit("Not a valid Day One package: " + args.journal)
+    if not os.path.exists(args.template):
+        sys.exit("File not found: " + args.template)
+
+    tags = args.tags
+    if tags is not None:
+        if tags != 'any':
+            tags = tags.split(',')
+
+    try:
+        output = dayone_export(args.journal, template=args.template,
+          timezone=tz, reverse=args.reverse, tags=tags, after=args.after)
+    except IOError as err:
+        sys.exit(err)
+
+    try:
+        with codecs.open(args.output, 'w', encoding='utf-8') as f:
+            f.write(output)
+    except IOError as err:
+        sys.exit(err)
+
+    print "Output written to {}".format(args.output)
