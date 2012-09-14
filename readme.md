@@ -8,6 +8,7 @@ by Nathan Grigg
 - [jinja2][1] for templating
 - [times][2] for time zone support.
 - [markdown][3] (optional) to convert entries to html.
+- [PIL][6] (optional) to include resized images inline as base64 data
 
 If you have [pip][4] installed, you can run
 
@@ -129,6 +130,24 @@ the markdown filter using a pipe:
 
 This converts the text to html.
 
+## Inlining images with base64 encoding
+
+You can include the images inline with base64 encoding using a custom filter:
+
+    {{ entry['Photo'] | imgbase64 }}
+
+The resulting entry looks like:
+
+    <img class="entry-photo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a ... ">
+
+The base64 data can become quite large in size. If you have [PIL][6]
+installed, you can resize the images so that the resulting output
+remains sufficently small (default maximum size is 400 pixels):
+
+    {{ entry['Photo'] | imgbase64(800) }}
+
+This includes the image inline with a maxium size of 800 pixels.
+
 ## More templating information
 
 For more details on Jinja templates, see the
@@ -140,3 +159,4 @@ For more details on Jinja templates, see the
 [3]: http://freewisdom.org/projects/python-markdown/
 [4]: http://www.pip-installer.org/en/latest/index.html
 [5]: http://jinja.pocoo.org/docs/templates/
+[6]: http://www.pythonware.com/products/pil/

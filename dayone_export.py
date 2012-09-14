@@ -48,6 +48,8 @@ import codecs
 import sys
 import os
 import times
+import base64
+import StringIO
 
 SUBKEYS = {'Location': ['Locality', 'Country', 'Place Name',
                  'Administrative Area', 'Longitude', 'Latitude'],
@@ -239,6 +241,31 @@ def dayone_export(dayone_folder, template="template.html", timezone='utc',
 
     env.filters['markdown'] = markup
     env.filters['format'] = format
+
+    # a filter to inline image data
+    try:
+        from PIL import Image
+    except:
+        # if we don't have PIL available, include the image in its
+        # original size
+        def imgbase64(infile, max_size = None):
+            print "Warning: failed to load PIL, cannot resize image %s" % infile
+            filename, ext = os.path.splitext(infile)
+            with open(dayone_folder + "/" + infile, "rb") as image_file:
+                base64data = base64.b64encode(image_file.read())
+                return "data:image/%s;base64,%s" % (ext[1:], base64data)
+    else:
+        # if we have PIL, resize the image
+        def imgbase64(infile, max_size = 400):
+            size = max_size,max_size
+            filename, ext = os.path.splitext(infile)
+            im = Image.open(dayone_folder + "/" + infile)
+            im.thumbnail(size, Image.ANTIALIAS)
+            output = StringIO.StringIO()
+            im.save(output,"jpeg", optimize = True) # we assume that we get best compressions with jpeg
+            base64data = output.getvalue().encode("base64")
+            return "data:image/jpeg;base64,%s" % (base64data)
+    env.filters['imgbase64'] = imgbase64
 
     # load template
     template = env.get_template(base)
