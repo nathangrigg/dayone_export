@@ -18,7 +18,7 @@
     </p>
     <div class="entry-text">
         {% if 'Photo' in entry %}
-        <img class="entry-photo" src="{{ entry['Photo']  }}"/>
+        <img class="entry-photo" src="{{ entry['Photo'] | imgbase64(600) }}"/>
         {% endif %}
         {{ entry['Text'] | markdown }}
     </div>
