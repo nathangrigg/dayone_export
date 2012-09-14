@@ -9,12 +9,12 @@
 <h1 class="page-title">Journal Entries</h1>
 {% for entry in journal %}
 <article class="entry">
-    <h1 class="entry-title">{{ times.format(entry['Date'], timezone, '%A, %b %e, %Y') }}</h1>
+    <h1 class="entry-title">{{ entry['Date']|format }}</h1>
     <p class="location time">
         {% if 'Location' in entry %}
         {{ entry.place(ignore="United States") }},
         {% endif %}
-        {{ times.format(entry['Date'], timezone, '%-I:%M %p %Z') }}
+        {{ entry['Date']|format('%-I:%M %p %Z') }}
     </p>
     <div class="entry-text">
         {% if 'Photo' in entry %}

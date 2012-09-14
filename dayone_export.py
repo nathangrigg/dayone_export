@@ -227,7 +227,12 @@ def dayone_export(dayone_folder, template="template.html", timezone='utc',
     else:
         def markup(text, *args, **kwargs):
             return markdown.markdown(text, *args, **kwargs)
+
+    def format(value, fmt='%A, %b %e, %Y', tz=timezone):
+        return times.format(value, tz, fmt)
+
     env.filters['markdown'] = markup
+    env.filters['format'] = format
 
     # load template
     template = env.get_template(base)
@@ -242,7 +247,7 @@ def dayone_export(dayone_folder, template="template.html", timezone='utc',
     # may throw an exception if the template is malformed
     # the traceback is helpful, so i'm letting it through
     # it might be nice to clean up the error message, someday
-    return template.render(journal=j, timezone=timezone, times=times)
+    return template.render(journal=j)
 
 def parse_args():
     """Parse command line arguments"""
