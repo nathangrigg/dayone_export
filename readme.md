@@ -6,12 +6,12 @@ by Nathan Grigg
 # Requirements
 
 - [jinja2][1] for templating
-- [pytz][2] for time zone support.
+- [times][2] for time zone support.
 - [markdown][3] (optional) to convert entries to html.
 
 If you have [pip][4] installed, you can run
 
-    pip install jinja2 pytz markdown
+    pip install jinja2 times markdown
 
 and you are ready to go.
 
@@ -41,6 +41,7 @@ Adjust the argument to be the path to your Day One journal.
       --tags TAGS      export entries with these comma-separated tags.
                        Tag 'any' has a special meaning, it says to export
                        entries with one or more tags.
+      --after DATETIME export only entries after the date
       --timezone ZONE  time zone name. Use --timezone "?" for more info
       --reverse        Display in reverse chronological order
 
@@ -55,7 +56,7 @@ Adjust the argument to be the path to your Day One journal.
     Journal Entries
     ===============
     {% for entry in journal %}
-    Date: {{ entry['Date'].strftime('%A, %b %e, %Y') }}
+    Date: {{ times.format(entry['Date'], timezone, '%A, %b %e, %Y') }}
 
     {{ entry['Text'] }}
 
@@ -114,9 +115,10 @@ see the code.
 
 ## Dates
 
-You can call Python's `strftime` on the date to format it. For example:
+You can use the  `format` filter on a date to control how it is displayed.
+For example:
 
-    {{ entry['Date'].strftime('%Y-%m-%d %H:%M:%S %z') }}
+    {{ entry['Date']|format('%Y-%m-%d %H:%M:%S %z') }}
 
 ## The markdown filter
 
@@ -134,7 +136,7 @@ For more details on Jinja templates, see the
 
 [0]: http://dayoneapp.com
 [1]: http://jinja.pocoo.org
-[2]: http://pytz.sourceforge.net
+[2]: http://pypi.python.org/pypi/times/
 [3]: http://freewisdom.org/projects/python-markdown/
 [4]: http://www.pip-installer.org/en/latest/index.html
 [5]: http://jinja.pocoo.org/docs/templates/

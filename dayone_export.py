@@ -39,18 +39,15 @@ The Entry object represents a single journal entry.
 
 The parse_journal function parses the journal into a list of
 Entry objects.
-
-The module also makes the timezone function from pytz available.
 """
 
 from jinja2 import Environment, FileSystemLoader
-from pytz import timezone, utc, UnknownTimeZoneError
 from operator import itemgetter
 import plistlib
-import datetime
 import codecs
 import sys
 import os
+import times
 
 SUBKEYS = {'Location': ['Locality', 'Country', 'Place Name',
                  'Administrative Area', 'Longitude', 'Latitude'],
@@ -76,7 +73,7 @@ class Entry(object):
     data.
     """
 
-    def __init__(self, filename, timezone=utc):
+    def __init__(self, filename):
         try:
             self.data = plistlib.readPlist(filename)
         except Exception as err:
@@ -86,8 +83,6 @@ class Entry(object):
             raise KeyError("{} is missing Creation Date".format(filename))
         if "Entry Text" not in self.data:
             raise KeyError("{} is missing Entry Text".format(filename))
-        self.data['Creation Date'] = utc.localize(
-            self.data['Creation Date']).astimezone(timezone)
 
         words = self.data['Entry Text'].split()
         tags = []
@@ -183,17 +178,15 @@ class Entry(object):
         return out
 
     def __repr__(self):
-        return "<Entry at {}>".format(self['Date'].strftime(
-          "%Y-%m-%dT%H:%M:%S%z"))
+        return "<Entry at {}>".format(self['Date'])
 
-def parse_journal(foldername, timezone=utc, reverse=False):
+def parse_journal(foldername, reverse=False):
     """Return a list of Entry objects, sorted by date"""
 
     journal = dict()
     for filename in os.listdir(os.path.join(foldername, 'entries')):
         if os.path.splitext(filename)[1] == '.doentry':
-            entry = Entry(os.path.join(foldername, 'entries', filename),
-              timezone=timezone)
+            entry = Entry(os.path.join(foldername, 'entries', filename))
             journal[entry['UUID']] = entry
 
     if len(journal) == 0:
@@ -218,7 +211,7 @@ def parse_journal(foldername, timezone=utc, reverse=False):
     return journal
 
 def dayone_export(dayone_folder, template="template.html", timezone='utc',
-  reverse=False, tags=None):
+  reverse=False, tags=None, after=None):
     """Combines dayone data using the template"""
 
     #setup jinja2
@@ -240,13 +233,22 @@ def dayone_export(dayone_folder, template="template.html", timezone='utc',
     else:
         def markup(text, *args, **kwargs):
             return markdown.markdown(text, *args, **kwargs)
+
+    def format(value, fmt='%A, %b %e, %Y', tz=timezone):
+        return times.format(value, tz, fmt)
+
     env.filters['markdown'] = markup
+    env.filters['format'] = format
 
     # load template
     template = env.get_template(base)
 
     # parse journal
-    j = parse_journal(dayone_folder, timezone=timezone, reverse=reverse)
+    j = parse_journal(dayone_folder, reverse=reverse)
+
+    if after is not None:
+        after = times.to_universal(after, timezone=timezone)
+        j = [item for item in j if item['Date'] > after]
 
     if tags:
         if tags == 'any':
@@ -266,8 +268,8 @@ def parse_args():
     import argparse
     parser = argparse.ArgumentParser(
       description="Export Day One entries using a Jinja template",
-      usage="""%(prog)s [-h] [--template FILE] [--output FILE]
-                 [--timezone ZONE] [--tags TAGS ] [--reverse] journal""",
+      usage="""%(prog)s [-h] [--template FILE] [--output FILE] [--tags TAGS ]
+                 [--timezone ZONE] [--after DATETIME] [--reverse] journal""",
       epilog="""Photos are not copied from the Day One package.
         If it has photos you will need to copy the "photos" folder from
         inside the Day One package into the same directory as the output file.
@@ -279,6 +281,8 @@ def parse_args():
       help='time zone name. Use --timezone "?" for more info')
     parser.add_argument('--tags',
       help='export entries with these comma-separated tags. Tag \'any\' has a special meaning.')
+    parser.add_argument('--after',
+      help='export entries published after this date')
     parser.add_argument('--reverse', action="store_true",
       help="Display in reverse chronological order")
     parser.add_argument('journal', help="path to Day One journal package",
@@ -287,14 +291,13 @@ def parse_args():
 
 def timezone_help(s):
     """Display help on time zone and exit"""
-    import pytz
     if s == '?':
-        title, zones = "Common time zones:", pytz.common_timezones
+        title, zones = "Common time zones:", times.pytz.common_timezones
     elif s == "??":
-        title, zones = "All possible time zones:", pytz.all_timezones
+        title, zones = "All possible time zones:", times.pytz.all_timezones
     elif len(s) == 3:
         title = "Time zones for country: " + s[1:]
-        try: zones = pytz.country_timezones(s[1:])
+        try: zones = times.pytz.country_timezones(s[1:])
         except KeyError:
             title = "Unrecognized country code: " + s[1:]
             zones = []
@@ -329,13 +332,13 @@ if __name__ == "__main__":
         args.output = "journal" + ("-output" if base == "journal" else "") + ext
 
     if args.timezone is None or len(args.timezone) == 0:
-        tz = utc
+        tz = 'utc'
     elif args.timezone[0] == "?":
         timezone_help(args.timezone)
     else:
         try:
-            tz = timezone(args.timezone)
-        except UnknownTimeZoneError:
+            tz = times.pytz.timezone(args.timezone)
+        except times.pytz.UnknownTimeZoneError:
             sys.exit("Unknown time zone: " + args.timezone)
 
     # Make sure there is a journal
@@ -358,7 +361,7 @@ if __name__ == "__main__":
 
     try:
         output = dayone_export(args.journal, template=args.template,
-          timezone=tz, reverse=args.reverse, tags=tags)
+          timezone=tz, reverse=args.reverse, tags=tags, after=args.after)
     except IOError as err:
         sys.exit(err)
 
