@@ -39,8 +39,6 @@ The Entry object represents a single journal entry.
 
 The parse_journal function parses the journal into a list of
 Entry objects.
-
-The module also makes the timezone function from pytz available.
 """
 
 from jinja2 import Environment, FileSystemLoader
@@ -171,8 +169,7 @@ class Entry(object):
         return out
 
     def __repr__(self):
-        return "<Entry at {}>".format(self['Date'].strftime(
-          "%Y-%m-%dT%H:%M:%S%z"))
+        return "<Entry at {}>".format(self['Date'])
 
 def parse_journal(foldername, reverse=False):
     """Return a list of Entry objects, sorted by date"""
@@ -275,14 +272,13 @@ def parse_args():
 
 def timezone_help(s):
     """Display help on time zone and exit"""
-    import pytz
     if s == '?':
-        title, zones = "Common time zones:", pytz.common_timezones
+        title, zones = "Common time zones:", times.pytz.common_timezones
     elif s == "??":
-        title, zones = "All possible time zones:", pytz.all_timezones
+        title, zones = "All possible time zones:", times.pytz.all_timezones
     elif len(s) == 3:
         title = "Time zones for country: " + s[1:]
-        try: zones = pytz.country_timezones(s[1:])
+        try: zones = times.pytz.country_timezones(s[1:])
         except KeyError:
             title = "Unrecognized country code: " + s[1:]
             zones = []

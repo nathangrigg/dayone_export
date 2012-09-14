@@ -112,11 +112,10 @@ see the code.
 
 ## Dates
 
-You can call `times.format` on the date to format it from internal UTC into
-desired timezone. A `timezone` context variable refers to a timezone, specified
-with `--timezone` option, which is `UTC` by default. For example:
+You can use the  `format` filter on a date to control how it is displayed.
+For example:
 
-    {{ times.format(entry['Date'], timezone, '%Y-%m-%d %H:%M:%S %z') }}
+    {{ entry['Date']|format('%Y-%m-%d %H:%M:%S %z') }}
 
 ## The markdown filter
 
