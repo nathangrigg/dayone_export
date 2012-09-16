@@ -42,13 +42,13 @@ Entry objects.
 """
 
 from operator import itemgetter
+from functools import partial
+from . import filters
 import jinja2
 import plistlib
 import sys
 import os
 import times
-import base64
-import StringIO
 
 SUBKEYS = {'Location': ['Locality', 'Country', 'Place Name',
                  'Administrative Area', 'Longitude', 'Latitude'],
@@ -256,52 +256,10 @@ def dayone_export(dayone_folder, template=None, timezone='utc',
     loader, template = _determine_inheritance(template, template_dir, format)
     env = jinja2.Environment(loader=loader, trim_blocks=True)
 
-    # markdown
-    try:
-        import markdown
-    except:
-        global need_markdown_warning
-        need_markdown_warning = True
-        def markup(text, *args, **kwargs):
-            global need_markdown_warning
-            if need_markdown_warning:
-                need_markdown_warning = False
-                print "Warning: cannot load markdown module"
-            return text
-    else:
-        def markup(text, *args, **kwargs):
-            return markdown.markdown(text, *args, **kwargs)
-
-    def format(value, fmt='%A, %b %e, %Y', tz=timezone):
-        return times.format(value, tz, fmt)
-
-    env.filters['markdown'] = markup
-    env.filters['format'] = format
-
-    # a filter to inline image data
-    try:
-        from PIL import Image
-    except:
-        # if we don't have PIL available, include the image in its
-        # original size
-        def imgbase64(infile, max_size = None):
-            print "Warning: failed to load PIL, cannot resize image %s" % infile
-            filename, ext = os.path.splitext(infile)
-            with open(dayone_folder + "/" + infile, "rb") as image_file:
-                base64data = base64.b64encode(image_file.read())
-                return "data:image/%s;base64,%s" % (ext[1:], base64data)
-    else:
-        # if we have PIL, resize the image
-        def imgbase64(infile, max_size = 400):
-            size = max_size,max_size
-            filename, ext = os.path.splitext(infile)
-            im = Image.open(dayone_folder + "/" + infile)
-            im.thumbnail(size, Image.ANTIALIAS)
-            output = StringIO.StringIO()
-            im.save(output,"jpeg") # we assume that we get best compressions with jpeg
-            base64data = output.getvalue().encode("base64")
-            return "data:image/jpeg;base64,%s" % (base64data)
-    env.filters['imgbase64'] = imgbase64
+    # filters
+    env.filters['markdown'] = filters.markup
+    env.filters['format'] = partial(filters.format, tz=timezone)
+    env.filters['imgbase64'] = partial(filters.imgbase64, dayone_folder=dayone_folder)
 
     # load template
     template = env.get_template(template)
