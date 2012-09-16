@@ -14,30 +14,28 @@ def parse_args():
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(
       description="Export Day One entries using a Jinja template",
-      usage="""%(prog)s [-h] [--template FILE] [--output FILE] [--tags TAGS ]
-                 [--timezone ZONE] [--after DATE] [--reverse] journal""",
-      epilog="""Photos are not copied from the Day One package.
-        If it has photos you will need to copy the "photos" folder from
-        inside the Day One package into the same directory as the output file.
-        """)
-    parser.add_argument('--template', metavar="NAME",
-      help="template name or file")
+      usage="%(prog)s [--output FILE] [--timezone ZONE] [opts] journal",
+      epilog="""If the Day One package has photos, you may need to copy
+        the "photos" folder from the package into the same directory
+        as the output file.""")
+    parser.add_argument('journal', help="path to Day One journal package",
+      nargs="?")
     parser.add_argument('--output', metavar="FILE",
-      help="output file")
-    parser.add_argument('--format', metavar="FMT",
-      help="output format")
-    parser.add_argument('--template-dir', metavar="DIR",
-      help='directory containing templates')
+      help="file to write (default print to stdout)")
     parser.add_argument('--timezone', metavar="ZONE",
-      help='time zone name. Use --timezone "?" for more info')
+      help='time zone name. (--timezone "?" for more info)')
+    parser.add_argument('--format', metavar="FMT",
+      help="output format (default guess from output file extension)")
+    parser.add_argument('--template', metavar="NAME",
+      help="name or file of template to use")
+    parser.add_argument('--template-dir', metavar="DIR",
+      help='location of templates (default ~/.dayone_export)')
     parser.add_argument('--tags',
       help='export entries with these comma-separated tags. Tag \'any\' has a special meaning.')
     parser.add_argument('--after', metavar='DATE',
       help='export entries published after this date')
     parser.add_argument('--reverse', action="store_true",
-      help="Display in reverse chronological order")
-    parser.add_argument('journal', help="path to Day One journal package",
-      nargs="?")
+      help="display in reverse chronological order")
     return parser.parse_args()
 
 def timezone_help(s):
@@ -81,7 +79,7 @@ if __name__ == "__main__":
     if args.format is None:
         args.format = os.path.splitext(args.output)[1][1:] if args.output \
                       else 'html'
-    if args.format in ['md', 'markdown', 'mdown', 'mkdn']:
+    if args.format.lower() in ['md', 'markdown', 'mdown', 'mkdn']:
         args.format = 'md'
 
     if not args.timezone:

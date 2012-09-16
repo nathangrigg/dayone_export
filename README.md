@@ -5,9 +5,20 @@ by Nathan Grigg
 
 # Installation
 
-Download the package and run
+Use [pip][4]:
+
+    pip install dayone_export
+
+Or use easy install:
+
+    easy_install dayone_export
+
+Or download and install:
 
     python setup.py install
+
+Requires [Jinja2][1], [times][2], and [Markdown][3].
+These will be installed automatically by any of the three methods above.
 
 # Quick start
 
@@ -17,30 +28,36 @@ Adjust the argument to be the path to your Day One journal.
 
 # Usage
 
-    usage: dayone_export [-h] [--template FILE] [--output FILE]
-                         [--timezone ZONE] [--reverse] journal
+    usage: dayone_export [--output FILE] [--timezone ZONE] [opts] journal
 
     Export Day One entries using a Jinja template
 
     positional arguments:
-      journal          path to Day One journal package
+      journal             path to Day One journal package
 
     optional arguments:
-      -h, --help       show this help message and exit
-      --template FILE  template file
-      --output FILE    output file
-      --tags TAGS      export entries with these comma-separated tags.
-                       Tag 'any' has a special meaning, it says to export
-                       entries with one or more tags.
-      --after DATETIME export only entries after the date
-      --timezone ZONE  time zone name. Use --timezone "?" for more info
-      --reverse        Display in reverse chronological order
+      -h, --help          show this help message and exit
+      --output FILE       file to write (default print to stdout)
+      --timezone ZONE     time zone name. (--timezone "?" for more info)
+      --format FMT        output format (default guess from output file extension)
+      --template NAME     name or file of template to use
+      --template-dir DIR  location of templates (default ~/.dayone_export)
+      --tags TAGS         export entries with these comma-separated tags. Tag
+                          'any' has a special meaning.
+      --after DATE        export entries published after this date
+      --reverse           display in reverse chronological order
 
-    Photos are not copied from the Day One package. If it has photos you will
-    need to copy the "photos" folder from inside the Day One package into the
-    same directory as the output file.
+    If the Day One package has photos, you may need to copy the "photos" folder
+    from the package into the same directory as the output file.
 
 # Templates
+
+The package comes with some basic templates. If you do not specify a template,
+it will use one of these.
+
+If you want to create your own template to use by default, you should name it `~/.dayone_export/default.html`.
+
+You can also specify a specific template using the `--template` option.
 
 ## Basic template example
 
@@ -104,23 +121,25 @@ off the country. Or `entry.place(1,4)` will leave off the "Place Name" and just
 show city, state, country. You can get more complicated; for details,
 see the code.
 
-## Dates
+## Filters
+
+You can use a pipe (`|`) to apply filters in your template.
+
+### Formatting dates
 
 You can use the  `format` filter on a date to control how it is displayed.
 For example:
 
-    {{ entry['Date']|format('%Y-%m-%d %H:%M:%S %z') }}
+    {{ entry['Date'] | format('%Y-%m-%d %H:%M:%S %z') }}
 
-## The markdown filter
+### Markdown
 
-If you have python markdown installed, you can pass things through
-the markdown filter using a pipe:
+This converts the markdown to html.
 
     {{ entry['Text'] | markdown }}
 
-This converts the text to html.
 
-## Inlining images with base64 encoding
+### Inline images with base64 encoding
 
 You can include the images inline with base64 encoding using a custom filter:
 
@@ -132,7 +151,7 @@ The resulting entry looks like:
 
 The base64 data can become quite large in size. If you have [PIL][6]
 installed, you can resize the images so that the resulting output
-remains sufficently small (default maximum size is 400 pixels):
+remains sufficiently small (default maximum size is 400 pixels):
 
     {{ entry['Photo'] | imgbase64(800) }}
 
