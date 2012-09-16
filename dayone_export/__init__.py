@@ -41,15 +41,14 @@ The parse_journal function parses the journal into a list of
 Entry objects.
 """
 
-from jinja2 import Environment, FileSystemLoader
 from operator import itemgetter
+from functools import partial
+from . import filters
+import jinja2
 import plistlib
-import codecs
 import sys
 import os
 import times
-import base64
-import StringIO
 
 SUBKEYS = {'Location': ['Locality', 'Country', 'Place Name',
                  'Administrative Area', 'Longitude', 'Latitude'],
@@ -212,63 +211,58 @@ def parse_journal(foldername, reverse=False):
     journal.sort(key=itemgetter('Creation Date'), reverse=reverse)
     return journal
 
-def dayone_export(dayone_folder, template="template.html", timezone='utc',
-  reverse=False, tags=None, after=None):
-    """Combines dayone data using the template"""
+def _determine_inheritance(template, template_dir, format):
+    """Determines where to look for template based on user options"""
 
-    #setup jinja2
-    path, base = os.path.split(template)
-    env = Environment(loader=FileSystemLoader(path), trim_blocks=True)
+    # explicit path to template => only load that template
+    if template is not None:
+        path, base = os.path.split(template)
+        if path:
+            return jinja2.FileSystemLoader(path), base
 
-    # markdown
-    try:
-        import markdown
-    except:
-        global need_markdown_warning
-        need_markdown_warning = True
-        def markup(text, *args, **kwargs):
-            global need_markdown_warning
-            if need_markdown_warning:
-                need_markdown_warning = False
-                print "Warning: cannot load markdown module"
-            return text
+    # template directory given => look there only
+    if template_dir is not None:
+        loader = jinja2.FileSystemLoader(template_dir)
+
     else:
-        def markup(text, *args, **kwargs):
-            return markdown.markdown(text, *args, **kwargs)
+        template_dir = os.path.expanduser('~/.dayone_export')
+        # template is given => look in current directory, then defaults
+        if template is not None:
+            template_search_path = ['.', template_dir]
+        # no template is given => don't look in current directory
+        else:
+            template_search_path = [template_dir]
 
-    def format(value, fmt='%A, %b %e, %Y', tz=timezone):
-        return times.format(value, tz, fmt)
+        loader = jinja2.ChoiceLoader([
+          jinja2.FileSystemLoader(template_search_path),
+          jinja2.PackageLoader('dayone_export')
+        ])
 
-    env.filters['markdown'] = markup
-    env.filters['format'] = format
+    # determine template if none is given
+    if template is None:
+        template = ("default." + format) if format else "default.html"
 
-    # a filter to inline image data
-    try:
-        from PIL import Image
-    except:
-        # if we don't have PIL available, include the image in its
-        # original size
-        def imgbase64(infile, max_size = None):
-            print "Warning: failed to load PIL, cannot resize image %s" % infile
-            filename, ext = os.path.splitext(infile)
-            with open(dayone_folder + "/" + infile, "rb") as image_file:
-                base64data = base64.b64encode(image_file.read())
-                return "data:image/%s;base64,%s" % (ext[1:], base64data)
-    else:
-        # if we have PIL, resize the image
-        def imgbase64(infile, max_size = 400):
-            size = max_size,max_size
-            filename, ext = os.path.splitext(infile)
-            im = Image.open(dayone_folder + "/" + infile)
-            im.thumbnail(size, Image.ANTIALIAS)
-            output = StringIO.StringIO()
-            im.save(output,"jpeg") # we assume that we get best compressions with jpeg
-            base64data = output.getvalue().encode("base64")
-            return "data:image/jpeg;base64,%s" % (base64data)
-    env.filters['imgbase64'] = imgbase64
+    return loader, template
+
+def dayone_export(dayone_folder, template=None, timezone='utc',
+  reverse=False, tags=None, after=None, format=None, template_dir=None):
+    """Combines dayone data using the template
+
+    If no template is given, searches for default template from the
+    templates folder of the package.
+    """
+
+    # figure out which template to use
+    loader, template = _determine_inheritance(template, template_dir, format)
+    env = jinja2.Environment(loader=loader, trim_blocks=True)
+
+    # filters
+    env.filters['markdown'] = filters.markup
+    env.filters['format'] = partial(filters.format, tz=timezone)
+    env.filters['imgbase64'] = partial(filters.imgbase64, dayone_folder=dayone_folder)
 
     # load template
-    template = env.get_template(base)
+    template = env.get_template(template)
 
     # parse journal
     j = parse_journal(dayone_folder, reverse=reverse)
@@ -289,115 +283,3 @@ def dayone_export(dayone_folder, template="template.html", timezone='utc',
     # the traceback is helpful, so i'm letting it through
     # it might be nice to clean up the error message, someday
     return template.render(journal=j)
-
-def parse_args():
-    """Parse command line arguments"""
-    import argparse
-    parser = argparse.ArgumentParser(
-      description="Export Day One entries using a Jinja template",
-      usage="""%(prog)s [-h] [--template FILE] [--output FILE] [--tags TAGS ]
-                 [--timezone ZONE] [--after DATETIME] [--reverse] journal""",
-      epilog="""Photos are not copied from the Day One package.
-        If it has photos you will need to copy the "photos" folder from
-        inside the Day One package into the same directory as the output file.
-        """)
-    parser.add_argument('--template', metavar="FILE",
-      default="template.html", help="template file")
-    parser.add_argument('--output', metavar="FILE", help="output file")
-    parser.add_argument('--timezone', metavar="ZONE",
-      help='time zone name. Use --timezone "?" for more info')
-    parser.add_argument('--tags',
-      help='export entries with these comma-separated tags. Tag \'any\' has a special meaning.')
-    parser.add_argument('--after',
-      help='export entries published after this date')
-    parser.add_argument('--reverse', action="store_true",
-      help="Display in reverse chronological order")
-    parser.add_argument('journal', help="path to Day One journal package",
-      nargs="?")
-    return parser.parse_args()
-
-def timezone_help(s):
-    """Display help on time zone and exit"""
-    if s == '?':
-        title, zones = "Common time zones:", times.pytz.common_timezones
-    elif s == "??":
-        title, zones = "All possible time zones:", times.pytz.all_timezones
-    elif len(s) == 3:
-        title = "Time zones for country: " + s[1:]
-        try: zones = times.pytz.country_timezones(s[1:])
-        except KeyError:
-            title = "Unrecognized country code: " + s[1:]
-            zones = []
-    else:
-        title = "Unrecognized option: --timezone " + s
-        zones = []
-
-    print title
-    for i, z in enumerate(zones):
-        if i % 2 or not sys.stdout.isatty():
-            print z
-        else:
-            print "{: <34}".format(z),
-    if not i % 2 and sys.stdout.isatty():
-        print
-
-    print """\
-For information about time zone choices use one of the following options:
-    --timezone "?"   print common time zones
-    --timezone "??"  print all time zones
-    --timezone "?XX" all time zones in country with two-letter code XX"""
-
-    sys.exit()
-
-# command line interface
-if __name__ == "__main__":
-    args = parse_args()
-
-    # auto generate output file name if necessary
-    if args.output is None:
-        base, ext = os.path.splitext(args.template)
-        args.output = "journal" + ("-output" if base == "journal" else "") + ext
-
-    if args.timezone is None or len(args.timezone) == 0:
-        tz = 'utc'
-    elif args.timezone[0] == "?":
-        timezone_help(args.timezone)
-    else:
-        try:
-            tz = times.pytz.timezone(args.timezone)
-        except times.pytz.UnknownTimeZoneError:
-            sys.exit("Unknown time zone: " + args.timezone)
-
-    # Make sure there is a journal
-    if args.journal is None:
-        sys.exit("Error: too few arguments")
-
-    # Check files exist
-    args.journal = os.path.expanduser(args.journal)
-    if not os.path.exists(args.journal):
-        sys.exit("File not found: " + args.journal)
-    if not os.path.exists(os.path.join(args.journal, 'entries')):
-        sys.exit("Not a valid Day One package: " + args.journal)
-    if not os.path.exists(args.template):
-        sys.exit("File not found: " + args.template)
-
-    tags = args.tags
-    if tags is not None:
-        if tags != 'any':
-            tags = tags.split(',')
-
-    try:
-        output = dayone_export(args.journal, template=args.template,
-          timezone=tz, reverse=args.reverse, tags=tags, after=args.after)
-    except IOError as err:
-        sys.exit(err)
-
-    try:
-        with codecs.open(args.output, 'w', encoding='utf-8') as f:
-            f.write(output)
-    except IOError as err:
-        sys.exit(err)
-
-    print "Output written to {}".format(args.output)
-
-

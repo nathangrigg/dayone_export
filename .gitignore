@@ -1,2 +1,4 @@
 *.pyc
-journal.*
+build/
+dist/
+*.egg-info
