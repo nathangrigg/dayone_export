@@ -1,0 +1,3 @@
+include dayone_export/templates/*
+include AUTHORS.txt
+include LICENSE.txt

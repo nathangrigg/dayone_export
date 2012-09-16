@@ -1,3 +1,7 @@
+# Copyright (c) 2012, Nathan Grigg
+# All rights reserved.
+# BSD License
+
 import times
 import os
 import sys
