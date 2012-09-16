@@ -3,32 +3,22 @@ using a Jinja template.
 
 by Nathan Grigg
 
-# Requirements
+# Installation
 
-- [jinja2][1] for templating
-- [times][2] for time zone support.
-- [markdown][3] (optional) to convert entries to html.
-- [PIL][6] (optional) to include resized images inline as base64 data
+Download the package and run
 
-If you have [pip][4] installed, you can run
-
-    pip install jinja2 times markdown
-
-and you are ready to go.
+    python setup.py install
 
 # Quick start
 
-After you have installed the dependencies and downloaded the script,
-`cd` into the `dayone_export` directory and run
-
-    ./dayone_export.py ~/Dropbox/Apps/"Day One"/Journal.dayone
+    dayone_export --output journal.html ~/Dropbox/Apps/Day\ One/Journal.dayone
 
 Adjust the argument to be the path to your Day One journal.
 
 # Usage
 
-    usage: dayone_export.py [-h] [--template FILE] [--output FILE]
-                            [--timezone ZONE] [--reverse] journal
+    usage: dayone_export [-h] [--template FILE] [--output FILE]
+                         [--timezone ZONE] [--reverse] journal
 
     Export Day One entries using a Jinja template
 
