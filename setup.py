@@ -19,7 +19,7 @@ setup(
     author = "Nathan Grigg",
     author_email = "nathan@nathanamy.org",
     packages = ["dayone_export"],
-    package_data={'dayone_export': ['templates/template.*']},
+    package_data={'dayone_export': ['templates/*']},
     scripts = ['bin/dayone_export'],
     license = "BSD",
     zip_safe = False,

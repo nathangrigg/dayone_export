@@ -41,8 +41,8 @@ The parse_journal function parses the journal into a list of
 Entry objects.
 """
 
-from jinja2 import Environment, FileSystemLoader
 from operator import itemgetter
+import jinja2
 import plistlib
 import sys
 import os
@@ -211,13 +211,50 @@ def parse_journal(foldername, reverse=False):
     journal.sort(key=itemgetter('Creation Date'), reverse=reverse)
     return journal
 
-def dayone_export(dayone_folder, template="template.html", timezone='utc',
-  reverse=False, tags=None, after=None):
-    """Combines dayone data using the template"""
+def _determine_inheritance(template, template_dir, format):
+    """Determines where to look for template based on user options"""
 
-    #setup jinja2
-    path, base = os.path.split(template)
-    env = Environment(loader=FileSystemLoader(path), trim_blocks=True)
+    # explicit path to template => only load that template
+    if template is not None:
+        path, base = os.path.split(template)
+        if path:
+            return jinja2.FileSystemLoader(path), base
+
+    # template directory given => look there only
+    if template_dir is not None:
+        loader = jinja2.FileSystemLoader(template_dir)
+
+    else:
+        template_dir = os.path.expanduser('~/.dayone_export')
+        # template is given => look in current directory, then defaults
+        if template is not None:
+            template_search_path = ['.', template_dir]
+        # no template is given => don't look in current directory
+        else:
+            template_search_path = [template_dir]
+
+        loader = jinja2.ChoiceLoader([
+          jinja2.FileSystemLoader(template_search_path),
+          jinja2.PackageLoader('dayone_export')
+        ])
+
+    # determine template if none is given
+    if template is None:
+        template = ("default." + format) if format else "default.html"
+
+    return loader, template
+
+def dayone_export(dayone_folder, template=None, timezone='utc',
+  reverse=False, tags=None, after=None, format=None, template_dir=None):
+    """Combines dayone data using the template
+
+    If no template is given, searches for default template from the
+    templates folder of the package.
+    """
+
+    # figure out which template to use
+    loader, template = _determine_inheritance(template, template_dir, format)
+    env = jinja2.Environment(loader=loader, trim_blocks=True)
 
     # markdown
     try:
@@ -267,7 +304,7 @@ def dayone_export(dayone_folder, template="template.html", timezone='utc',
     env.filters['imgbase64'] = imgbase64
 
     # load template
-    template = env.get_template(base)
+    template = env.get_template(template)
 
     # parse journal
     j = parse_journal(dayone_folder, reverse=reverse)

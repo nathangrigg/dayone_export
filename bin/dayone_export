@@ -4,28 +4,35 @@
 #
 # For help, run `dayone_export --help`
 
-from dayone_export import times, dayone_export
+from dayone_export import times, dayone_export, jinja2
 import argparse
 import codecs
+import os
+import sys
 
 def parse_args():
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(
       description="Export Day One entries using a Jinja template",
       usage="""%(prog)s [-h] [--template FILE] [--output FILE] [--tags TAGS ]
-                 [--timezone ZONE] [--after DATETIME] [--reverse] journal""",
+                 [--timezone ZONE] [--after DATE] [--reverse] journal""",
       epilog="""Photos are not copied from the Day One package.
         If it has photos you will need to copy the "photos" folder from
         inside the Day One package into the same directory as the output file.
         """)
-    parser.add_argument('--template', metavar="FILE",
-      default="template.html", help="template file")
-    parser.add_argument('--output', metavar="FILE", help="output file")
+    parser.add_argument('--template', metavar="NAME",
+      help="template name or file")
+    parser.add_argument('--output', metavar="FILE",
+      help="output file")
+    parser.add_argument('--format', metavar="FMT",
+      help="output format")
+    parser.add_argument('--template-dir', metavar="DIR",
+      help='directory containing templates')
     parser.add_argument('--timezone', metavar="ZONE",
       help='time zone name. Use --timezone "?" for more info')
     parser.add_argument('--tags',
       help='export entries with these comma-separated tags. Tag \'any\' has a special meaning.')
-    parser.add_argument('--after',
+    parser.add_argument('--after', metavar='DATE',
       help='export entries published after this date')
     parser.add_argument('--reverse', action="store_true",
       help="Display in reverse chronological order")
@@ -70,12 +77,14 @@ For information about time zone choices use one of the following options:
 if __name__ == "__main__":
     args = parse_args()
 
-    # auto generate output file name if necessary
-    if args.output is None:
-        base, ext = os.path.splitext(args.template)
-        args.output = "journal" + ("-output" if base == "journal" else "") + ext
+    # determine output format
+    if args.format is None:
+        args.format = os.path.splitext(args.output)[1][1:] if args.output \
+                      else 'html'
+    if args.format in ['md', 'markdown', 'mdown', 'mkdn']:
+        args.format = 'md'
 
-    if args.timezone is None or len(args.timezone) == 0:
+    if not args.timezone:
         tz = 'utc'
     elif args.timezone[0] == "?":
         timezone_help(args.timezone)
@@ -89,14 +98,12 @@ if __name__ == "__main__":
     if args.journal is None:
         sys.exit("Error: too few arguments")
 
-    # Check files exist
+    # Check journal files exist
     args.journal = os.path.expanduser(args.journal)
     if not os.path.exists(args.journal):
         sys.exit("File not found: " + args.journal)
     if not os.path.exists(os.path.join(args.journal, 'entries')):
         sys.exit("Not a valid Day One package: " + args.journal)
-    if not os.path.exists(args.template):
-        sys.exit("File not found: " + args.template)
 
     tags = args.tags
     if tags is not None:
@@ -105,14 +112,17 @@ if __name__ == "__main__":
 
     try:
         output = dayone_export(args.journal, template=args.template,
-          timezone=tz, reverse=args.reverse, tags=tags, after=args.after)
-    except IOError as err:
-        sys.exit(err)
+          timezone=tz, reverse=args.reverse, tags=tags, after=args.after,
+          format=args.format, template_dir=args.template_dir)
+    except jinja2.TemplateNotFound as err:
+        sys.exit("Template not found: {0}".format(err))
 
-    try:
-        with codecs.open(args.output, 'w', encoding='utf-8') as f:
-            f.write(output)
-    except IOError as err:
-        sys.exit(err)
 
-    print "Output written to {}".format(args.output)
+    if args.output:
+        try:
+            with codecs.open(args.output, 'w', encoding='utf-8') as f:
+                f.write(output)
+        except IOError as err:
+            sys.exit(err)
+    else:
+        sys.stdout.write(output.encode('utf-8') + "\n")
