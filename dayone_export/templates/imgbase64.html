@@ -1,0 +1,68 @@
+{#
+This template encodes images into base64 and includes them in the
+output. Optionally uses the Python Imaging Library to resize images.
+To download the imaging library, see
+https://developers.google.com/appengine/docs/python/images/installingPIL
+#}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Journal Entries</title>
+    <link rel="stylesheet" href="style.css" type="text/css">
+    <meta charset="UTF-8" />
+<style>
+body {
+    width: 35em;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: Avenir, Helvetica, sans-serif;
+    background-color: f9f9f9;
+}
+
+
+img.entry-photo {
+    max-width: 35em;
+    max-height: 20em;
+    margin-right: auto;
+    margin-left: auto;
+    display: block;
+}
+
+.entry-title {
+    margin-top: 2em;
+    background-color: black;
+    color: #fafafa;
+    padding-left: 10px;
+    margin-left: -10px;
+    margin-right: -10px;
+    border-radius: 5px;
+}
+
+.page-title {
+    font-size: 3em;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+<h1 class="page-title">Journal Entries</h1>
+{% for entry in journal %}
+<article class="entry">
+    <h1 class="entry-title">{{ entry['Date']|format }}</h1>
+    <p class="location time">
+        {% if 'Location' in entry %}
+        {{ entry.place(ignore="United States") }},
+        {% endif %}
+        {{ entry['Date']|format('%-I:%M %p %Z') }}
+    </p>
+    <div class="entry-text">
+        {% if 'Photo' in entry %}
+        <img class="entry-photo" src="{{ entry['Photo'] | imgbase64(600) }}"/>
+        {% endif %}
+        {{ entry['Text'] | markdown }}
+    </div>
+</article>
+{% endfor %}
+</body>
+</html>
