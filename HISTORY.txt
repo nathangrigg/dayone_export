@@ -1,0 +1,8 @@
+0.1.0
+    Arrange source into package format and upload to PyPI
+    Ability to filter entries by hash tags
+    Ability to filter by time using --after
+    Option base64 encoding for images in html
+
+(unnumbered)
+    First published to Github
