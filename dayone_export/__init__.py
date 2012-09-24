@@ -105,7 +105,7 @@ class Entry(object):
 
         # make sure there is a location set
         if not 'Location' in self:
-            raise KeyError('Location')
+            return "" # fail silently
 
         # down to business
         order = ['Place Name', 'Locality', 'Administrative Area', 'Country']
