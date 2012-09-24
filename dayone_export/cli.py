@@ -4,7 +4,9 @@
 #
 # For help, run `dayone_export --help`
 
-from dayone_export import times, dayone_export, jinja2
+from . import dayone_export
+import times
+import jinja2
 import argparse
 import codecs
 import os
@@ -39,7 +41,7 @@ def parse_args():
     return parser.parse_args()
 
 def timezone_help(s):
-    """Display help on time zone and exit"""
+    """Display help on time zone"""
     if s == '?':
         title, zones = "Common time zones:", times.pytz.common_timezones
     elif s == "??":
@@ -69,10 +71,10 @@ For information about time zone choices use one of the following options:
     --timezone "??"  print all time zones
     --timezone "?XX" all time zones in country with two-letter code XX"""
 
-    sys.exit()
+    return 0
 
 # command line interface
-if __name__ == "__main__":
+def run():
     args = parse_args()
 
     # determine output format
@@ -85,23 +87,23 @@ if __name__ == "__main__":
     if not args.timezone:
         tz = 'utc'
     elif args.timezone[0] == "?":
-        timezone_help(args.timezone)
+        return timezone_help(args.timezone)
     else:
         try:
             tz = times.pytz.timezone(args.timezone)
         except times.pytz.UnknownTimeZoneError:
-            sys.exit("Unknown time zone: " + args.timezone)
+            return "Unknown time zone: " + args.timezone
 
     # Make sure there is a journal
     if args.journal is None:
-        sys.exit("Error: too few arguments")
+        return "Error: too few arguments"
 
     # Check journal files exist
     args.journal = os.path.expanduser(args.journal)
     if not os.path.exists(args.journal):
-        sys.exit("File not found: " + args.journal)
+        return "File not found: " + args.journal
     if not os.path.exists(os.path.join(args.journal, 'entries')):
-        sys.exit("Not a valid Day One package: " + args.journal)
+        return "Not a valid Day One package: " + args.journal
 
     tags = args.tags
     if tags is not None:
@@ -113,7 +115,7 @@ if __name__ == "__main__":
           timezone=tz, reverse=args.reverse, tags=tags, after=args.after,
           format=args.format, template_dir=args.template_dir)
     except jinja2.TemplateNotFound as err:
-        sys.exit("Template not found: {0}".format(err))
+        return "Template not found: {0}".format(err)
 
 
     if args.output:
@@ -121,6 +123,10 @@ if __name__ == "__main__":
             with codecs.open(args.output, 'w', encoding='utf-8') as f:
                 f.write(output)
         except IOError as err:
-            sys.exit(err)
+            return str(err)
     else:
         sys.stdout.write(output.encode('utf-8') + "\n")
+
+
+if __name__ == "__main__":
+    sys.exit(run())

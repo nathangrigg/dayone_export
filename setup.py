@@ -22,7 +22,9 @@ setup(
     package_data={'dayone_export': ['templates/*']},
     include_package_data = True,
     url = 'https://github.com/nathan11g/dayone_export/',
-    scripts = ['bin/dayone_export'],
+    entry_points = {
+        'console_scripts': ['dayone_export = dayone_export.cli:run']
+    },
     license = "BSD",
     zip_safe = False,
     long_description = __doc__,
