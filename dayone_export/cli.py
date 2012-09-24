@@ -50,13 +50,12 @@ def timezone_help(s):
         title = "Time zones for country: " + s[1:]
         try: zones = times.pytz.country_timezones(s[1:])
         except KeyError:
-            title = "Unrecognized country code: " + s[1:]
-            zones = []
+            return "Unrecognized country code: " + s[1:]
     else:
-        title = "Unrecognized option: --timezone " + s
-        zones = []
+        return "Unrecognized option: --timezone " + s
 
     print title
+    i = 0
     for i, z in enumerate(zones):
         if i % 2 or not sys.stdout.isatty():
             print z
