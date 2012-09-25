@@ -12,6 +12,7 @@ import codecs
 import os
 import sys
 
+
 def parse_args():
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(
@@ -40,6 +41,7 @@ def parse_args():
       help="display in reverse chronological order")
     return parser.parse_args()
 
+
 def timezone_help(s):
     """Display help on time zone"""
     if s == '?':
@@ -48,7 +50,8 @@ def timezone_help(s):
         title, zones = "All possible time zones:", times.pytz.all_timezones
     elif len(s) == 3:
         title = "Time zones for country: " + s[1:]
-        try: zones = times.pytz.country_timezones(s[1:])
+        try:
+            zones = times.pytz.country_timezones(s[1:])
         except KeyError:
             return "Unrecognized country code: " + s[1:]
     else:
@@ -71,6 +74,7 @@ For information about time zone choices use one of the following options:
     --timezone "?XX" all time zones in country with two-letter code XX"""
 
     return 0
+
 
 # command line interface
 def run():
@@ -115,7 +119,6 @@ def run():
           format=args.format, template_dir=args.template_dir)
     except jinja2.TemplateNotFound as err:
         return "Template not found: {0}".format(err)
-
 
     if args.output:
         try:

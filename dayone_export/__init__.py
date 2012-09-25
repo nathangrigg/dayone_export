@@ -21,13 +21,13 @@ from functools import partial
 from . import filters
 import jinja2
 import plistlib
-import sys
 import os
 import times
 
 SUBKEYS = {'Location': ['Locality', 'Country', 'Place Name',
                  'Administrative Area', 'Longitude', 'Latitude'],
                'Weather': ['Fahrenheit', 'Celsius', 'Description', 'IconName']}
+
 
 class Entry(object):
     """Represents a single entry in the Day One journal
@@ -108,7 +108,7 @@ class Entry(object):
             raise KeyError('Location')
 
         # down to business
-        order= ['Place Name', 'Locality', 'Administrative Area', 'Country']
+        order = ['Place Name', 'Locality', 'Administrative Area', 'Country']
         names = []
         for n in args[0]:
             if order[n] in self:
@@ -156,6 +156,7 @@ class Entry(object):
     def __repr__(self):
         return "<Entry at {}>".format(self['Date'])
 
+
 def parse_journal(foldername, reverse=False):
     """Return a list of Entry objects, sorted by date"""
 
@@ -185,6 +186,7 @@ def parse_journal(foldername, reverse=False):
     journal = journal.values()
     journal.sort(key=itemgetter('Creation Date'), reverse=reverse)
     return journal
+
 
 def _determine_inheritance(template, template_dir, format):
     """Determines where to look for template based on user options"""
@@ -219,6 +221,7 @@ def _determine_inheritance(template, template_dir, format):
 
     return loader, template
 
+
 def dayone_export(dayone_folder, template=None, timezone='utc',
   reverse=False, tags=None, after=None, format=None, template_dir=None):
     """Combines dayone data using the template
@@ -234,7 +237,8 @@ def dayone_export(dayone_folder, template=None, timezone='utc',
     # filters
     env.filters['markdown'] = filters.markup
     env.filters['format'] = partial(filters.format, tz=timezone)
-    env.filters['imgbase64'] = partial(filters.imgbase64, dayone_folder=dayone_folder)
+    env.filters['imgbase64'] = partial(filters.imgbase64,
+      dayone_folder=dayone_folder)
 
     # load template
     template = env.get_template(template)
