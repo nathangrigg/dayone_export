@@ -10,7 +10,13 @@ For more information::
     dayone_export --help
 """
 
-from setuptools import setup
+import sys
+try:
+    from setuptools import setup
+except ImportError:
+    sys.exit("""Error: Setuptools is required for installation.
+ -> http://pypi.python.org/pypi/setuptools
+ or http://pypi.python.org/pypi/distribute""")
 
 setup(
     name = "dayone_export",
