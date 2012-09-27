@@ -4,17 +4,7 @@
 # All rights reserved.
 # BSD License
 
-"""Export Day One journal entries using a Jinja template.
-
-The function dayone_export fills in a template. This function
-can also be called using a command line interface. Run the script
-with the --help argument for more information.
-
-The Entry object represents a single journal entry.
-
-The parse_journal function parses the journal into a list of
-Entry objects.
-"""
+"""Export Day One journal entries using a Jinja template."""
 
 from operator import itemgetter
 from functools import partial
@@ -30,23 +20,9 @@ SUBKEYS = {'Location': ['Locality', 'Country', 'Place Name',
 
 
 class Entry(object):
-    """Represents a single entry in the Day One journal
+    """Parse a single journal entry.
 
-    Acts like a read-only dictionary with the following keys:
-
-    - Creation Date (alias Date)
-    - Entry Text (alias Text)
-    - Starred
-    - UUID
-    - Location
-    - Weather
-
-    The Location and Weather keys point to second level dictionaries.
-    The subkeys are in the SUBKEYS constant, and can be accessed
-    directly, that is, entry['Location']['Longitude'] == entry['Longitude']
-
-    The place function provides a flexible way to combine the location
-    data.
+    Acts like a read-only dictionary.
     """
 
     def __init__(self, filename):
@@ -74,21 +50,27 @@ class Entry(object):
         self.data['Photo'] = filename
 
     def place(self, *args, **kwargs):
-        """Return comma-separated list of places, from smallest to largest
+        """Format entry's location as string, with places separated by commas.
 
-        Day one provides 4 levels of specificity:
+        :param levels: levels of specificity to include
+        :type levels: list of int
+        :keyword ignore: locations to ignore
+        :type ignore: string or list of strings
 
-        0: Place Name
-        1: Locality (e.g. city)
-        2: Administrative Area (e.g. state)
-        3: Country
+        The *levels* parameter should be a list of integers corresponding to
+        the following levels of specificity defined by Day One.
 
-        place([n1, n2, ...]) returns any subset of the levels
-        place(n) returns the first n levels [== place(range(n))]
-        place(n, m) returns levels between n and m [== place(range(n, m))]
+        - 0: Place Name
+        - 1: Locality (e.g. city)
+        - 2: Administrative Area (e.g. state)
+        - 3: Country
 
-        place allows a single keyword argument: ignore
-        ignore is a list of strings to ignore, e.g., your home country
+        Alternately, *levels* can be an integer *n* to specify the *n*
+        smallest levels.
+
+        The keyword argument *ignore* directs the method to ignore one
+        or more place names. For example, you may want to ignore
+        your home country so that only foreign countries are shown.
         """
 
         # deal with the arguments
@@ -147,6 +129,11 @@ class Entry(object):
         return False
 
     def keys(self):
+        """List all keys.
+
+        Note that some keys are aliases,
+        e.g. ``entry['Date'] == entry['Creation Date']``
+        """
         out = self.data.keys() + ["Text", "Date"]
         for superkey, subkeys in SUBKEYS.items():
             if superkey in self:
@@ -239,10 +226,33 @@ def _filter_by_after_date(journal, date, timezone):
 
 def dayone_export(dayone_folder, template=None, timezone='utc',
   reverse=False, tags=None, after=None, format=None, template_dir=None):
-    """Combines dayone data using the template
+    """Render a template using entries from a Day One journal.
 
-    If no template is given, searches for default template from the
-    templates folder of the package.
+    :param dayone_folder: Name of Day One folder; generally ends in ``.dayone``.
+    :type dayone_folder: string
+    :param reverse: If true, the entries are formatted in reverse chronological
+                    order.
+    :type reverse: bool
+    :param tags: Only include entries with the given tags.
+                 This paramater can also be the literal string ``any``,
+                 in which case only entries with tags are included.
+                 Tags are interpreted as words at the end of an entry
+                 beginning with ``#``.
+    :type tags: list of strings
+    :param after: Only include entries after the given date.
+    :type after: date string
+    :param format: The file extension of the default template to use.
+    :type format: string
+    :param template: Template file name.
+                     The program looks for the template first
+                     in the  current directory, then the template directory.
+    :type template: string
+    :param template_dir: Directory containing templates.
+                         If not given, the program looks in
+                         ``~/.dayone_export`` followed by the
+                         dayone_export package.
+    :type template_dir: string
+    :returns: Filled in template as string.
     """
 
     # figure out which template to use
