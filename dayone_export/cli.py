@@ -111,7 +111,7 @@ def run():
     tags = args.tags
     if tags is not None:
         if tags != 'any':
-            tags = tags.split(',')
+            tags = [tag.strip() for tag in tags.split(',')]
 
     try:
         output = dayone_export(args.journal, template=args.template,
