@@ -69,7 +69,8 @@ class Entry(object):
 
         self.data['Tags'] = tags
 
-    def add_photo(self, filename):
+    def set_photo(self, filename):
+        """Set the filename of the photo"""
         self.data['Photo'] = filename
 
     def place(self, *args, **kwargs):
@@ -177,7 +178,7 @@ def parse_journal(foldername, reverse=False):
         for filename in photos:
             base = os.path.splitext(filename)[0]
             try:
-                journal[base].add_photo(os.path.join('photos', filename))
+                journal[base].set_photo(os.path.join('photos', filename))
             except KeyError:
                 # ignore items in the photos folder with no corresponding entry
                 pass

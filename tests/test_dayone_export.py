@@ -13,13 +13,13 @@ except ImportError:
 class TestEntryObject(unittest.TestCase):
     def setUp(self):
         self.entry = doe.Entry('tests/fake_journal/entries/full.doentry')
-        self.entry.add_photo('foo')
+        self.entry.set_photo('foo')
         self.no_location = doe.Entry('tests/fake_journal/entries/00-first.doentry')
 
     def test_tag_parsing(self):
         self.assertEqual(self.entry.data['Tags'], ['tag'])
 
-    def test_add_photo(self):
+    def test_set_photo(self):
         self.assertEqual(self.entry.data['Photo'], 'foo')
 
     def test_place_no_arguments(self):
@@ -74,7 +74,7 @@ class TestJournalParser(unittest.TestCase):
         self.j = doe.parse_journal('tests/fake_journal')
         self.reversed = doe.parse_journal('tests/fake_journal', reverse=True)
 
-    def test_automatically_add_photos(self):
+    def test_automatically_set_photos(self):
         expected = 'photos/00F9FA96F29043D09638DF0866EC73B2.jpg'
         actual = self.j[0]['Photo']
         self.assertEqual(expected, actual)
