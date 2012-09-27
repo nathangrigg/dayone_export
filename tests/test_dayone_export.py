@@ -60,8 +60,7 @@ class TestEntryObject(unittest.TestCase):
         self.assertEqual(self.entry['Date'], self.entry['Creation Date'])
 
     def test_getitem_raises_keyerror(self):
-        with self.assertRaises(KeyError):
-            self.entry['foo']
+        self.assertRaises(KeyError, lambda:self.entry['foo'])
 
     def test_getitem_flattened_dict(self):
         self.assertEqual(self.entry['Country'], self.entry['Location']['Country'])
