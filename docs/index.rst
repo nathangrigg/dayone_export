@@ -1,15 +1,14 @@
-.. Day One Export documentation master file, created by
-   sphinx-quickstart on Wed Sep 26 19:30:45 2012.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Day One Export documentation
+Table of Contents
 ============================
 
+.. note::
 
+   The Day One Export project is hosted at
+   http://github.com/nathan11g/dayone_export.
 
-Full documentation
-------------------
+   Go there for installation instructions,
+   to report issues,
+   or if you are interested in contributing.
 
 .. toctree::
    :maxdepth: 2
@@ -17,12 +16,4 @@ Full documentation
    cli
    templates
    module
-
-
-Index and search
-----------------
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 

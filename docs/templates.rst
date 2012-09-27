@@ -1,104 +1,150 @@
+.. highlight:: none
+
+.. _templates:
+
 Create your own template
 ========================
 
-The package comes with some basic templates. If you do not specify a template,
-it will use one of these.
+Templates are written using Jinja2 syntax.
+You can learn a lot from their excellent
+`Template Designer Documentation`__
 
-If you want to create your own template to use by default, you should name it ``~/.dayone_export/default.html``.
+__ http://jinja.pocoo.org/docs/templates/
 
-You can also specify a specific template using the ``--template`` option.
-
-Basic template example
-----------------------
-
-::
-
-    Journal Entries
-    ===============
-    {% for entry in journal %}
-    Date: {{ times.format(entry['Date'], timezone, '%A, %b %e, %Y') }}
-
-    {{ entry['Text'] }}
-
-    {% endfor %}
 
 The journal variable
 --------------------
 
-Templates receive a single variable: ``journal``, which is a list of entries.
-So your template will probably look something like this::
+The program passes a single variable to the template, which is named
+``journal``. This is a list of Entry_ objects, each of which
+represents a single journal entry.
 
-    ... document header, title, etc ...
+Generally, a template will loop over elements of the journal variable,
+like this::
+
+    ... Document header, title, etc ...
+
     {% for entry in journal %}
-    ... code for a single entry ...
+
+        ... Code for a single entry ...
+
     {% endfor %}
-    ... end of document stuff, etc ...
+
+    ... End of document stuff, etc ...
+
+
+.. _Entry:
 
 The Entry object
 ----------------
 
-Each entry has the following keys:
+An Entry object behaves a lot like a Python dictionary,
+which means you can access the data fields by name.
+For example, you use ``entry['Text']`` to get the text of
+an entry.
 
-- Date
-- Text
-- Starred
-- UUID
-- Photo (the path of the corresponding photo, if it exists)
-- Place Name (e.g. Boom Noodle)
-- Locality (e.g. Seattle)
-- Administrative Area (e.g. Washington)
-- Country (e.g. United States)
-- Longitude
-- Latitude
-- Fahrenheit
-- Celsius
-- Description (this refers to the weather)
-- IconName (also refers to weather)
+Jinja uses double braces to insert a variable into the document,
+so to insert the entry's text at a certain point in the document, you
+would include the following line in your template::
 
-You insert one of these into your document using double brackets, e.g. ::
+    {{ entry['Text'] }}
 
-    {{ entry['Place Name'] }}
+
+Here are some keys that an entry may have:
+
+- ``Date``
+- ``Text``
+- ``Starred``
+- ``UUID``
+- ``Photo`` (the relative path of the corresponding photo, if it exists)
+- ``Place Name`` (e.g. Boom Noodle)
+- ``Locality`` (e.g. Seattle)
+- ``Administrative Area`` (e.g. Washington)
+- ``Country`` (e.g. United States)
+- ``Longitude``
+- ``Latitude``
+- ``Fahrenheit``
+- ``Celsius``
+- ``Description`` (this refers to the weather)
+- ``IconName`` (also refers to weather)
 
 Jinja will just leave a blank space if you try to access a nonexistent key.
-If you want to test if a key exists, you can always do ::
+So if an entry has no location information, ``{{ entry['Latitude'] }}``
+will have no effect.
 
-    {% if Longitude in entry %}
-    ... conditional code
-    {% endif %}
+For more information, see the documentation for :ref:`Entry`.
+
 
 Places
 ------
 
-Each entry also has a ``place`` convenience function. You can use ``entry.place()``
-or ``entry.place(4)`` to get a comma-separated list of all the places in order.
-If you use ``entry.place(3)``, it will only show the first three levels and leave
-off the country. Or ``entry.place(1,4)`` will leave off the "Place Name" and just
-show city, state, country. You can get more complicated; for details,
-see the code.
+You may want to combine the place information into a single string.
+You can do this with the ``place`` method.
 
-Filters
--------
+With no arguments, ``entry.place()`` inserts the place names in order from
+smallest to largest, separated by commas.
 
-You can use a pipe (``|``) to apply filters in your template.
+With a single integer argument, ``entry.place(n)`` inserts the place names
+from smallest to largest, but only uses the *n* smallest places. For example,
+``entry.place(3)`` will always leave off the country.
 
-Formatting dates
-~~~~~~~~~~~~~~~~
+If you want to get more specific, you can use a list as an argument.
+So ``entry.place([1, 3])`` will put the *Locality* and *Country*, but leave
+off the *Place Name* and *Administrative Area*.
 
-You can use the  ``format`` filter on a date to control how it is displayed.
+Finally, you can use an ``ignore`` keyword argument to ignore a specific
+string. For example, ``entry.place(ignore="United States")`` will print
+the full location information, but leave off the country if it is
+"United States".
+
+Don't forget that to insert any of this into the document, you need to put it
+inside double braces.
+
+More information is available in the documentation for :ref:`Entry`.
+
+
+Jinja Filters
+-------------
+
+Jinja allows you to transform a variable before inserting it into the document,
+using a filter which is denoted by a ``|``.
+
+For example, ``{{ entry['Country'] | default("Unknown") }}``
+pass the Country through the ``default`` filter, which in turn changes
+it to the string ``Unknown`` if the country does not exist.
+
+Since the ``default`` filter can be particularly useful, I will point out
+that it may happen that Day One has defined the country to be the
+empty string, in which case, the ``default`` filter will let it remain
+empty. If you want the filter to be more aggressive (you probably do),
+you can use ``{{ entry['Country'] | default("Unknown", true) }}``
+
+There are several `built-in Jinja filters`__ available.
+
+__ http://jinja.pocoo.org/docs/templates/#builtin-filters
+
+
+Format dates
+------------
+
+This program defines a custom filter called ``format`` which formats
+dates.
+
 For example::
 
     {{ entry['Date'] | format('%Y-%m-%d %H:%M:%S %z') }}
 
-Markdown
-~~~~~~~~
+Convert to Markdown
+-------------------
 
-This converts the markdown to html::
+This program defines a custom filter called ``markdown`` which converts
+markdown text to html::
 
     {{ entry['Text'] | markdown }}
 
 
 Inline images with base64 encoding
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------
 
 You can include the images inline with base64 encoding using a custom filter::
 
@@ -106,7 +152,7 @@ You can include the images inline with base64 encoding using a custom filter::
 
 The resulting entry looks like::
 
-    <img class="entry-photo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a ... ">
+    <img class="entry-photo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABA... ">
 
 The base64 data can become quite large in size. If you have the
 `Python imaging library`__

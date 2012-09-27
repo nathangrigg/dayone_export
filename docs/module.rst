@@ -1,7 +1,11 @@
 Module documentation
 ====================
 
-lorem
+Here is information about the module itself.
+
+You can use this in a Python script by using ``import dayone_export``.
+
+.. _Entry:
 
 The Entry class
 ---------------
