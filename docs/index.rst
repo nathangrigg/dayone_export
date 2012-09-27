@@ -3,18 +3,24 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Day One Export's documentation!
-==========================================
+Day One Export documentation
+============================
 
-Contents:
+
+
+Full documentation
+------------------
 
 .. toctree::
    :maxdepth: 2
 
+   cli
+   templates
+   module
 
 
-Indices and tables
-==================
+Index and search
+----------------
 
 * :ref:`genindex`
 * :ref:`modindex`
