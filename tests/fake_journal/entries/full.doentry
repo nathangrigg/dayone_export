@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Creation Date</key>
+	<date>2012-01-02T00:00:00Z</date>
+	<key>Entry Text</key>
+	<string>2: Full entry with time zone, location, weather and a #tag</string>
+		<key>Location</key>
+	<dict>
+		<key>Administrative Area</key>
+		<string>Washington</string>
+		<key>Country</key>
+		<string>United States</string>
+		<key>Latitude</key>
+		<real>47.831128653640743</real>
+		<key>Locality</key>
+		<string>Seattle</string>
+		<key>Longitude</key>
+		<real>-122.14663693802373</real>
+		<key>Place Name</key>
+		<string>Zoo</string>
+	</dict>
+	<key>Starred</key>
+	<false/>
+	<key>Time Zone</key>
+	<string>America/Los_Angeles</string>
+	<key>Weather</key>
+	<dict>
+		<key>Celsius</key>
+		<string>16</string>
+		<key>Description</key>
+		<string>Mostly Sunny</string>
+		<key>Fahrenheit</key>
+		<string>61</string>
+		<key>IconName</key>
+		<string>pcloudy.png</string>
+	</dict>
+	<key>UUID</key>
+	<string>00F9FA96F29043D09638DF0866000002</string>
+</dict>
+</plist>
