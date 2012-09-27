@@ -13,7 +13,7 @@ import os
 import sys
 
 
-def parse_args():
+def parse_args(args=None):
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(
       description="Export Day One entries using a Jinja template",
@@ -39,7 +39,7 @@ def parse_args():
       help='export entries published after this date')
     parser.add_argument('--reverse', action="store_true",
       help="display in reverse chronological order")
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def timezone_help(s):
@@ -77,8 +77,8 @@ For information about time zone choices use one of the following options:
 
 
 # command line interface
-def run():
-    args = parse_args()
+def run(args=None):
+    args = parse_args(args)
 
     # determine output format
     if args.format is None:

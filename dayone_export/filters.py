@@ -38,7 +38,7 @@ warn_once = WarnOnce({
 #############################
 try:
     import markdown
-except:
+except ImportError:
     def markup(text, *args, **kwargs):
         warn_once('markdown')
         return text
@@ -58,7 +58,7 @@ def format(value, fmt='%A, %b %e, %Y', tz='utc'):
 #############################
 try:
     from PIL import Image
-except:
+except ImportError:
     # if we don't have PIL available, include the image in its
     # original size
     def imgbase64(infile, max_size=None, dayone_folder=None):

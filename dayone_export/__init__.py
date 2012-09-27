@@ -221,6 +221,20 @@ def _determine_inheritance(template, template_dir, format):
 
     return loader, template
 
+def _filter_by_tag(journal, tags):
+    """filter by list of tags. tags='any' allows any entry with some tag"""
+    if tags == 'any':
+        tag_filter = lambda item: item['Tags']
+    else:
+        tag_filter = lambda item: set(item['Tags']).intersection(set(tags))
+
+    return filter(tag_filter, journal)
+
+def _filter_by_after_date(journal, date, timezone):
+    """return a list of entries after date    """
+    date = times.to_universal(date, timezone=timezone)
+    return [item for item in journal if item['Date'] > date]
+
 
 def dayone_export(dayone_folder, template=None, timezone='utc',
   reverse=False, tags=None, after=None, format=None, template_dir=None):
@@ -245,18 +259,10 @@ def dayone_export(dayone_folder, template=None, timezone='utc',
 
     # parse journal
     j = parse_journal(dayone_folder, reverse=reverse)
-
     if after is not None:
-        after = times.to_universal(after, timezone=timezone)
-        j = [item for item in j if item['Date'] > after]
-
-    if tags:
-        if tags == 'any':
-            tag_filter = lambda item: item['Tags']
-        else:
-            tag_filter = lambda item: set(item['Tags']).intersection(set(tags))
-
-        j = filter(tag_filter, j)
+        j = _filter_by_after_date(j, after, timezone)
+    if tags is not None:
+        j = _filter_by_tag(j, tags)
 
     # may throw an exception if the template is malformed
     # the traceback is helpful, so i'm letting it through
