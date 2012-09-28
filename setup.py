@@ -20,7 +20,7 @@ except ImportError:
 
 setup(
     name = "dayone_export",
-    version = "0.1.1",
+    version = "0.2.0",
     description = "Export Day One journal using Jinja2 templates",
     author = "Nathan Grigg",
     author_email = "nathan@nathanamy.org",
@@ -34,7 +34,10 @@ setup(
     license = "BSD",
     zip_safe = False,
     long_description = __doc__,
-    install_requires = ['Jinja2>=2.6', 'times==0.5', 'Markdown>=2.2.0'],
+    install_requires = ['Jinja2>=2.6',
+                        'pytz',
+                        'python-dateutil>=2.1',
+                        'Markdown>=2.2.0'],
     classifiers = [
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
