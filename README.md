@@ -42,3 +42,4 @@ Full documentation and information about creating new templates is available at 
 [2]: http://pypi.python.org/pypi/times/
 [3]: http://freewisdom.org/projects/python-markdown/
 [4]: http://www.pip-installer.org/en/latest/index.html
+[5]: http://day-one-export.readthedocs.org/
