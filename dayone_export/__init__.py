@@ -252,7 +252,6 @@ def _filter_by_after_date(journal, date):
     :param date: A naive datetime representing a UTC time"""
     return [item for item in journal if item['Creation Date'] > date]
 
-
 def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
     after=None, format=None, template_dir=None):
     """Render a template using entries from a Day One journal.

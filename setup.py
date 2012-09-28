@@ -18,6 +18,10 @@ except ImportError:
  -> http://pypi.python.org/pypi/setuptools
  or http://pypi.python.org/pypi/distribute""")
 
+extra = {}
+if sys.version_info >= (3,):
+    extra['use_2to3'] = True
+
 setup(
     name = "dayone_export",
     version = "0.2.0",
@@ -52,5 +56,6 @@ setup(
         "Topic :: Text Processing :: Markup :: HTML",
         "Topic :: Utilities",
         "Topic :: Text Processing :: General"
-        ]
+        ],
+    **extra
 )

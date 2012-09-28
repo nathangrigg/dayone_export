@@ -5,9 +5,8 @@
 import os
 import sys
 import base64
-import StringIO
 import pytz
-
+from StringIO import StringIO
 
 class WarnOnce(object):
     """Issue a warning only one time.

@@ -7,16 +7,14 @@ import jinja2
 from datetime import datetime
 import pytz
 
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+this_path = os.path.split(os.path.abspath(__file__))[0]
+fake_journal = os.path.join(this_path, 'fake_journal')
 
 class TestEntryObject(unittest.TestCase):
     def setUp(self):
-        self.entry = doe.Entry('tests/fake_journal/entries/full.doentry')
+        self.entry = doe.Entry(fake_journal + '/entries/full.doentry')
         self.entry.set_photo('foo')
-        self.no_location = doe.Entry('tests/fake_journal/entries/00-first.doentry')
+        self.no_location = doe.Entry(fake_journal + '/entries/00-first.doentry')
         self.entry.set_time_zone('America/Los_Angeles')
         self.entry.set_localized_date('America/Los_Angeles')
 
@@ -79,7 +77,7 @@ class TestEntryObject(unittest.TestCase):
 
 class TestJournalParser(unittest.TestCase):
     def setUp(self):
-        self.j = doe.parse_journal('tests/fake_journal')
+        self.j = doe.parse_journal(fake_journal)
 
     def test_automatically_set_photos(self):
         expected = 'photos/00F9FA96F29043D09638DF0866EC73B2.jpg'
@@ -94,18 +92,18 @@ class TestJournalParser(unittest.TestCase):
 
     @patch('jinja2.Template.render')
     def test_dayone_export_run(self, mock_render):
-        doe.dayone_export('tests/fake_journal')
+        doe.dayone_export(fake_journal)
         mock_render.assert_called()
 
     @patch('jinja2.Template.render')
     def test_dayone_export_run_with_naive_after(self, mock_render):
-        doe.dayone_export('tests/fake_journal', after=datetime(2012, 9, 1))
+        doe.dayone_export(fake_journal, after=datetime(2012, 9, 1))
         mock_render.assert_called()
 
     @patch('jinja2.Template.render')
     def test_dayone_export_run_with_localized_after(self, mock_render):
         after = pytz.timezone('America/New_York').localize(datetime(2012, 9, 1))
-        doe.dayone_export('tests/fake_journal', after=after)
+        doe.dayone_export(fake_journal, after=after)
         mock_render.assert_called()
 
     def test_after_filter(self):
@@ -186,7 +184,7 @@ class TestTemplateInheritance(unittest.TestCase):
 
 class TestCLI(unittest.TestCase):
     def setUp(self):
-        self.silencer = patch('sys.stdout', new_callable=StringIO)
+        self.silencer = patch('sys.stdout')
         self.silencer.start()
 
     def tearDown(self):
@@ -194,26 +192,26 @@ class TestCLI(unittest.TestCase):
 
     @patch('dayone_export.cli.dayone_export', return_value="")
     def test_tag_splitter_protects_any(self, mock_doe):
-        dayone_export.cli.run(['--tags', 'any', 'tests/fake_journal'])
+        dayone_export.cli.run(['--tags', 'any', fake_journal])
         expected = 'any'
         actual = mock_doe.call_args[1]['tags']
         self.assertEqual(expected, actual)
 
     @patch('dayone_export.cli.dayone_export', return_value="")
     def test_tag_splitter(self, mock_doe):
-        dayone_export.cli.run(['--tags', 'a, b', 'tests/fake_journal'])
+        dayone_export.cli.run(['--tags', 'a, b', fake_journal])
         expected = ['a', 'b']
         actual = mock_doe.call_args[1]['tags']
         self.assertEqual(expected, actual)
 
     def test_invalid_package(self):
-        actual = dayone_export.cli.run(['tests'])
+        actual = dayone_export.cli.run(['.'])
         expected = 'Not a valid Day One package'
         self.assertTrue(actual.startswith(expected), actual)
 
     @patch('dayone_export.cli.dayone_export', side_effect=jinja2.TemplateNotFound('msg'))
     def test_template_not_found(self, mock_doe):
-        actual = dayone_export.cli.run(['tests/fake_journal'])
+        actual = dayone_export.cli.run([fake_journal])
         expected = "Template not found"
         self.assertTrue(actual.startswith(expected), actual)
 

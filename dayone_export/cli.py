@@ -38,6 +38,12 @@ def parse_args(args=None):
       help="display in reverse chronological order")
     return parser.parse_args(args)
 
+def print_bytes(s):
+    """Print bytes to stdout in Python 2 or 3"""
+    if sys.version_info[0] == 2:
+        sys.stdout.write(s)
+    else:
+        sys.stdout.buffer.write(s)
 
 # command line interface
 def run(args=None):
@@ -81,7 +87,8 @@ def run(args=None):
         except IOError as err:
             return str(err)
     else:
-        sys.stdout.write(output.encode('utf-8') + "\n")
+        print_bytes(output.encode('utf-8'))
+        print_bytes("\n".encode('utf-8'))
 
 
 if __name__ == "__main__":
