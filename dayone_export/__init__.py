@@ -127,7 +127,7 @@ class Entry(object):
         return "<Entry at {0}>".format(self['Creation Date'])
 
 
-def parse_journal(foldername, reverse=False):
+def parse_journal(foldername):
     """Return a list of Entry objects, sorted by date"""
 
     journal = dict()
@@ -158,7 +158,7 @@ def parse_journal(foldername, reverse=False):
 
     # make it a list and sort
     journal = journal.values()
-    journal.sort(key=itemgetter('Creation Date'), reverse=reverse)
+    journal.sort(key=itemgetter('Creation Date'))
     return journal
 
 
@@ -210,8 +210,8 @@ def _filter_by_after_date(journal, date, timezone):
     return [item for item in journal if item['Date'] > date]
 
 
-def dayone_export(dayone_folder, template=None, timezone='utc',
-  reverse=False, tags=None, after=None, format=None, template_dir=None):
+def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
+    after=None, format=None, template_dir=None):
     """Render a template using entries from a Day One journal.
 
     :param dayone_folder: Name of Day One folder; generally ends in ``.dayone``.
@@ -255,11 +255,13 @@ def dayone_export(dayone_folder, template=None, timezone='utc',
     template = env.get_template(template)
 
     # parse journal
-    j = parse_journal(dayone_folder, reverse=reverse)
+    j = parse_journal(dayone_folder)
     if after is not None:
         j = _filter_by_after_date(j, after, timezone)
     if tags is not None:
         j = _filter_by_tag(j, tags)
+    if reverse:
+        j.reverse()
 
     # may throw an exception if the template is malformed
     # the traceback is helpful, so i'm letting it through
