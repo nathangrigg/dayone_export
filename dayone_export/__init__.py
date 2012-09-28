@@ -36,10 +36,17 @@ class Entry(object):
         # Required fields
         if "Creation Date" not in self.data:
             raise KeyError("Creation Date")
-        if "Entry Text" not in self.data:
-            raise KeyError("Entry Text")
 
-        words = self.data['Entry Text'].split()
+        # aliases and flattening
+        self.data['Text'] = self.data.pop('Entry Text', "")
+        for key in ['Location', 'Weather']:
+            if key in self.data:
+                new_keys = ((k, v) for k, v in self.data[key].viewitems()
+                            if k not in self.data) # prevent overwrite
+                self.data.update(new_keys)
+
+        # tags
+        words = self.data['Text'].split()
         tags = []
         for word in reversed(words):
             if not word.startswith('#'):
@@ -107,47 +114,17 @@ class Entry(object):
         return ", ".join(names)
 
     def __getitem__(self, key):
-        if key in self.data:
-            return self.data[key]
-
-        if key == "Text":
-            return self.data['Entry Text']
-
-        if key == "Date":
-            return self.data['Creation Date']
-
-        # flatten the dictionary a bit
-        for superkey, subkeys in SUBKEYS.items():
-            if key in subkeys:
-                return self.data[superkey][key]
-
-        raise KeyError(key)
+        return self.data[key]
 
     def __contains__(self, key):
-        if key in self.data or key in ["Text", "Date"]:
-            return True
-
-        for superkey, subkeys in SUBKEYS.items():
-            if key in subkeys:
-                return superkey in self.data and key in self.data[superkey]
-
-        return False
+        return key in self.data
 
     def keys(self):
-        """List all keys.
-
-        Note that some keys are aliases,
-        e.g. ``entry['Date'] == entry['Creation Date']``
-        """
-        out = self.data.keys() + ["Text", "Date"]
-        for superkey, subkeys in SUBKEYS.items():
-            if superkey in self:
-                out.extend([k for k in subkeys if k in self])
-
-        return out
+        """List all keys."""
+        return list(self.data.keys())
 
     def __repr__(self):
-        return "<Entry at {0}>".format(self['Date'])
+        return "<Entry at {0}>".format(self['Creation Date'])
 
 
 def parse_journal(foldername, reverse=False):
