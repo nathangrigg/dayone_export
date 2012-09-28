@@ -1,3 +1,9 @@
+0.1.1
+    Bug fixes
+    Better documentation
+    Improve setuptools experience
+    Remove stray comma from default template
+
 0.1.0
     Arrange source into package format and upload to PyPI
     Ability to filter entries by hash tags

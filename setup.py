@@ -20,7 +20,7 @@ except ImportError:
 
 setup(
     name = "dayone_export",
-    version = "0.1.0",
+    version = "0.1.1",
     description = "Export Day One journal using Jinja2 templates",
     author = "Nathan Grigg",
     author_email = "nathan@nathanamy.org",
