@@ -12,7 +12,7 @@ from . import filters
 import jinja2
 import plistlib
 import os
-import times
+import pytz
 
 SUBKEYS = {'Location': ['Locality', 'Country', 'Place Name',
                  'Administrative Area', 'Longitude', 'Latitude'],
@@ -22,7 +22,21 @@ SUBKEYS = {'Location': ['Locality', 'Country', 'Place Name',
 class Entry(object):
     """Parse a single journal entry.
 
+    :raises: IOError, KeyError
+
     Acts like a read-only dictionary.
+    The keys are as defined in the plist file by the Day One App, with
+    minor exceptions:
+
+    - What Day One calls "Entry Text", we call "Text".
+    - The "Location" and "Weather" dictionaries are flattened,
+      so that their subkeys are accessible as keys of the main dictionary
+    - The "Tag" key is added, with tags parsed from the text
+    - The "Photo" key is added and should contain the path to attached photo
+    - The "Date" key is added and should contain the localized date.
+
+    Note that the "Creation Date" contains a naive date as defined
+    by the plist which should correspond to a UTC time.
     """
 
     def __init__(self, filename):
@@ -31,12 +45,20 @@ class Entry(object):
         except Exception as err:
             raise IOError("Can't read {0}\n{1}".format(filename, err))
 
+        # Required fields
         if "Creation Date" not in self.data:
-            raise KeyError("{0} is missing Creation Date".format(filename))
-        if "Entry Text" not in self.data:
-            raise KeyError("{0} is missing Entry Text".format(filename))
+            raise KeyError("Creation Date")
 
-        words = self.data['Entry Text'].split()
+        # aliases and flattening
+        self.data['Text'] = self.data.pop('Entry Text', "")
+        for key in ['Location', 'Weather']:
+            if key in self.data:
+                new_keys = ((k, v) for k, v in self.data[key].items()
+                            if k not in self.data) # prevent overwrite
+                self.data.update(new_keys)
+
+        # tags
+        words = self.data['Text'].split()
         tags = []
         for word in reversed(words):
             if not word.startswith('#'):
@@ -49,7 +71,20 @@ class Entry(object):
         """Set the filename of the photo"""
         self.data['Photo'] = filename
 
-    def place(self, *args, **kwargs):
+    def set_localized_date(self, timezone):
+        """Set the localized date (the "Date" key)"""
+        try:
+            tz = pytz.timezone(timezone)
+        except pytz.UnknownTimeZoneError:
+            tz = pytz.utc
+
+        self.data["Date"] = tz.localize(self["Creation Date"])
+
+    def set_time_zone(self, timezone):
+        """Set the time zone"""
+        self.data["Time Zone"] = timezone
+
+    def place(self, levels=4, ignore=None):
         """Format entry's location as string, with places separated by commas.
 
         :param levels: levels of specificity to include
@@ -74,84 +109,60 @@ class Entry(object):
         """
 
         # deal with the arguments
-        if len(args) == 0:
-            return self.place(range(4), **kwargs)
-        if type(args[0]) is int:
-            return self.place(range(*args), **kwargs)
-        ignore = []
-        for k, v in kwargs.items():
-            if k == 'ignore':
-                ignore = v if type(v) is list else [v]
-            else:
-                raise TypeError(
-            "'{0}' is an invalid keyword argument for this function".format(k))
+        if isinstance(levels, int):
+            levels = list(range(levels))
+        if ignore is None:
+            ignore = []
+        if isinstance(ignore, basestring):
+            ignore = [ignore]
 
         # make sure there is a location set
         if not 'Location' in self:
             return "" # fail silently
 
-        # down to business
+        # mix up the order
         order = ['Place Name', 'Locality', 'Administrative Area', 'Country']
-        names = []
-        for n in args[0]:
-            if order[n] in self:
-                value = self[order[n]]
-                if len(value) and value not in ignore:
-                    names.append(value)
+        try:
+            order_keys = [order[n] for n in levels]
+        except TypeError:
+            raise TypeError("'levels' argument must be an integer or list")
+
+        # extract keys
+        names = (self[key] for key in order_keys if key in self)
+
+        # filter
+        try:
+            names = [name for name in names if len(name) and name not in ignore]
+        except TypeError:
+            raise TypeError("'ignore' argument must be a string or list")
 
         return ", ".join(names)
 
     def __getitem__(self, key):
-        if key in self.data:
-            return self.data[key]
-
-        if key == "Text":
-            return self.data['Entry Text']
-
-        if key == "Date":
-            return self.data['Creation Date']
-
-        # flatten the dictionary a bit
-        for superkey, subkeys in SUBKEYS.items():
-            if key in subkeys:
-                return self.data[superkey][key]
-
-        raise KeyError(key)
+        return self.data[key]
 
     def __contains__(self, key):
-        if key in self.data or key in ["Text", "Date"]:
-            return True
-
-        for superkey, subkeys in SUBKEYS.items():
-            if key in subkeys:
-                return superkey in self.data and key in self.data[superkey]
-
-        return False
+        return key in self.data
 
     def keys(self):
-        """List all keys.
-
-        Note that some keys are aliases,
-        e.g. ``entry['Date'] == entry['Creation Date']``
-        """
-        out = self.data.keys() + ["Text", "Date"]
-        for superkey, subkeys in SUBKEYS.items():
-            if superkey in self:
-                out.extend([k for k in subkeys if k in self])
-
-        return out
+        """List all keys."""
+        return list(self.data.keys())
 
     def __repr__(self):
-        return "<Entry at {0}>".format(self['Date'])
+        return "<Entry at {0}>".format(self['Creation Date'])
 
 
-def parse_journal(foldername, reverse=False):
+def parse_journal(foldername):
     """Return a list of Entry objects, sorted by date"""
 
     journal = dict()
     for filename in os.listdir(os.path.join(foldername, 'entries')):
         if os.path.splitext(filename)[1] == '.doentry':
-            entry = Entry(os.path.join(foldername, 'entries', filename))
+            try:
+                entry = Entry(os.path.join(foldername, 'entries', filename))
+            except KeyError as err:
+                pass
+
             journal[entry['UUID']] = entry
 
     if len(journal) == 0:
@@ -172,7 +183,24 @@ def parse_journal(foldername, reverse=False):
 
     # make it a list and sort
     journal = journal.values()
-    journal.sort(key=itemgetter('Creation Date'), reverse=reverse)
+    journal.sort(key=itemgetter('Creation Date'))
+
+    # add timezone info
+    newest_tz = 'utc'
+    for entry in reversed(journal):
+        if "Time Zone" in entry:
+            newest_tz = entry["Time Zone"]
+            break
+
+    tz = newest_tz
+    for entry in reversed(journal):
+        if "Time Zone" in entry:
+            tz = entry["Time Zone"]
+        else:
+            entry.set_time_zone(tz)
+
+        entry.set_localized_date(tz)
+
     return journal
 
 
@@ -218,14 +246,14 @@ def _filter_by_tag(journal, tags):
 
     return filter(tag_filter, journal)
 
-def _filter_by_after_date(journal, date, timezone):
-    """return a list of entries after date    """
-    date = times.to_universal(date, timezone=timezone)
-    return [item for item in journal if item['Date'] > date]
+def _filter_by_after_date(journal, date):
+    """return a list of entries after date
 
+    :param date: A naive datetime representing a UTC time"""
+    return [item for item in journal if item['Creation Date'] > date]
 
-def dayone_export(dayone_folder, template=None, timezone='utc',
-  reverse=False, tags=None, after=None, format=None, template_dir=None):
+def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
+    after=None, format=None, template_dir=None):
     """Render a template using entries from a Day One journal.
 
     :param dayone_folder: Name of Day One folder; generally ends in ``.dayone``.
@@ -240,7 +268,7 @@ def dayone_export(dayone_folder, template=None, timezone='utc',
                  beginning with ``#``.
     :type tags: list of strings
     :param after: Only include entries after the given date.
-    :type after: date string
+    :type after: naive datetime
     :param format: The file extension of the default template to use.
     :type format: string
     :param template: Template file name.
@@ -261,7 +289,7 @@ def dayone_export(dayone_folder, template=None, timezone='utc',
 
     # filters
     env.filters['markdown'] = filters.markup
-    env.filters['format'] = partial(filters.format, tz=timezone)
+    env.filters['format'] = filters.format
     env.filters['imgbase64'] = partial(filters.imgbase64,
       dayone_folder=dayone_folder)
 
@@ -269,11 +297,22 @@ def dayone_export(dayone_folder, template=None, timezone='utc',
     template = env.get_template(template)
 
     # parse journal
-    j = parse_journal(dayone_folder, reverse=reverse)
+    j = parse_journal(dayone_folder)
+
+    # filter and manipulate based on options
     if after is not None:
-        j = _filter_by_after_date(j, after, timezone)
+        if after.tzinfo is None:
+            # set timezone to mirror last journal entry
+            after = j[-1]["Date"].tzinfo.localize(after)
+        # convert to UTC
+        after.astimezone(pytz.utc)
+        # strip timezone info
+        after = after.replace(tzinfo=None)
+        j = _filter_by_after_date(j, after)
     if tags is not None:
         j = _filter_by_tag(j, tags)
+    if reverse:
+        j.reverse()
 
     # may throw an exception if the template is malformed
     # the traceback is helpful, so i'm letting it through

@@ -2,12 +2,11 @@
 # All rights reserved.
 # BSD License
 
-import times
 import os
 import sys
 import base64
-import StringIO
-
+import pytz
+from StringIO import StringIO
 
 class WarnOnce(object):
     """Issue a warning only one time.
@@ -50,8 +49,10 @@ else:
 #############################
 # Date formatting
 #############################
-def format(value, fmt='%A, %b %e, %Y', tz='utc'):
-    return times.format(value, tz, fmt)
+def format(value, fmt='%A, %b %e, %Y', tz=None):
+    if tz:
+        value = value.astimezone(pytz.timezone(tz))
+    return value.strftime(fmt)
 
 #############################
 # Base64 encode images

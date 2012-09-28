@@ -4,17 +4,19 @@ import dayone_export.cli
 from mock import patch
 import os
 import jinja2
+from datetime import datetime
+import pytz
 
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+this_path = os.path.split(os.path.abspath(__file__))[0]
+fake_journal = os.path.join(this_path, 'fake_journal')
 
 class TestEntryObject(unittest.TestCase):
     def setUp(self):
-        self.entry = doe.Entry('tests/fake_journal/entries/full.doentry')
+        self.entry = doe.Entry(fake_journal + '/entries/full.doentry')
         self.entry.set_photo('foo')
-        self.no_location = doe.Entry('tests/fake_journal/entries/00-first.doentry')
+        self.no_location = doe.Entry(fake_journal + '/entries/00-first.doentry')
+        self.entry.set_time_zone('America/Los_Angeles')
+        self.entry.set_localized_date('America/Los_Angeles')
 
     def test_tag_parsing(self):
         self.assertEqual(self.entry.data['Tags'], ['tag'])
@@ -32,10 +34,8 @@ class TestEntryObject(unittest.TestCase):
         actual = self.entry.place(3)
         self.assertEqual(expected, actual)
 
-    def test_place_range_argument(self):
-        expected = 'Seattle, Washington'
-        actual = self.entry.place(1,3)
-        self.assertEqual(expected, actual)
+    def test_old_invalid_place_range_argument(self):
+        self.assertRaises(TypeError, self.entry.place, 1, 3)
 
     def test_place_list_argument(self):
         expected = 'Seattle, United States'
@@ -47,17 +47,23 @@ class TestEntryObject(unittest.TestCase):
 
     def test_place_ignore_argument(self):
         expected = 'Washington'
-        actual = self.entry.place(2, 3, ignore='United States')
+        actual = self.entry.place([2, 3], ignore='United States')
         self.assertEqual(expected, actual)
 
     def test_getitem_data_key(self):
         self.assertEqual(self.entry['Photo'], 'foo')
 
     def test_getitem_text(self):
-        self.assertEqual(self.entry['Text'], self.entry['Entry Text'])
+        expected = '2: Full entry with time zone, location, weather and a #tag'
+        self.assertEqual(self.entry['Text'], expected)
 
     def test_getitem_date(self):
-        self.assertEqual(self.entry['Date'], self.entry['Creation Date'])
+        date = self.entry['Date']
+        naive_date = date.replace(tzinfo = None)
+        expected_date = datetime(2012, 1, 2, 0, 0)
+        expected_zone = 'America/Los_Angeles'
+        self.assertEqual(naive_date, expected_date)
+        self.assertEqual(date.tzinfo.zone, expected_zone)
 
     def test_getitem_raises_keyerror(self):
         self.assertRaises(KeyError, lambda:self.entry['foo'])
@@ -71,8 +77,7 @@ class TestEntryObject(unittest.TestCase):
 
 class TestJournalParser(unittest.TestCase):
     def setUp(self):
-        self.j = doe.parse_journal('tests/fake_journal')
-        self.reversed = doe.parse_journal('tests/fake_journal', reverse=True)
+        self.j = doe.parse_journal(fake_journal)
 
     def test_automatically_set_photos(self):
         expected = 'photos/00F9FA96F29043D09638DF0866EC73B2.jpg'
@@ -81,21 +86,28 @@ class TestJournalParser(unittest.TestCase):
 
     def test_sort_order(self):
         j = self.j
-        result = j[0]['Date'] <= j[1]['Date'] <= j[2]['Date']
-        self.assertTrue(result)
-
-    def test_sort_order(self):
-        j = self.reversed
-        result = j[2]['Date'] <= j[1]['Date'] <= j[0]['Date']
+        k = 'Creation Date'
+        result = j[0][k] <= j[1][k] <= j[2][k]
         self.assertTrue(result)
 
     @patch('jinja2.Template.render')
     def test_dayone_export_run(self, mock_render):
-        doe.dayone_export('tests/fake_journal')
+        doe.dayone_export(fake_journal)
+        mock_render.assert_called()
+
+    @patch('jinja2.Template.render')
+    def test_dayone_export_run_with_naive_after(self, mock_render):
+        doe.dayone_export(fake_journal, after=datetime(2012, 9, 1))
+        mock_render.assert_called()
+
+    @patch('jinja2.Template.render')
+    def test_dayone_export_run_with_localized_after(self, mock_render):
+        after = pytz.timezone('America/New_York').localize(datetime(2012, 9, 1))
+        doe.dayone_export(fake_journal, after=after)
         mock_render.assert_called()
 
     def test_after_filter(self):
-        filtered = doe._filter_by_after_date(self.j, "2012-09-01", "utc")
+        filtered = doe._filter_by_after_date(self.j, datetime(2012, 9, 1))
         self.assertEqual(len(filtered), 1)
 
     def test_tags_any_tag(self):
@@ -172,7 +184,7 @@ class TestTemplateInheritance(unittest.TestCase):
 
 class TestCLI(unittest.TestCase):
     def setUp(self):
-        self.silencer = patch('sys.stdout', new_callable=StringIO)
+        self.silencer = patch('sys.stdout')
         self.silencer.start()
 
     def tearDown(self):
@@ -180,26 +192,26 @@ class TestCLI(unittest.TestCase):
 
     @patch('dayone_export.cli.dayone_export', return_value="")
     def test_tag_splitter_protects_any(self, mock_doe):
-        dayone_export.cli.run(['--tags', 'any', 'tests/fake_journal'])
+        dayone_export.cli.run(['--tags', 'any', fake_journal])
         expected = 'any'
         actual = mock_doe.call_args[1]['tags']
         self.assertEqual(expected, actual)
 
     @patch('dayone_export.cli.dayone_export', return_value="")
     def test_tag_splitter(self, mock_doe):
-        dayone_export.cli.run(['--tags', 'a, b', 'tests/fake_journal'])
+        dayone_export.cli.run(['--tags', 'a, b', fake_journal])
         expected = ['a', 'b']
         actual = mock_doe.call_args[1]['tags']
         self.assertEqual(expected, actual)
 
     def test_invalid_package(self):
-        actual = dayone_export.cli.run(['tests'])
+        actual = dayone_export.cli.run(['.'])
         expected = 'Not a valid Day One package'
         self.assertTrue(actual.startswith(expected), actual)
 
     @patch('dayone_export.cli.dayone_export', side_effect=jinja2.TemplateNotFound('msg'))
     def test_template_not_found(self, mock_doe):
-        actual = dayone_export.cli.run(['tests/fake_journal'])
+        actual = dayone_export.cli.run([fake_journal])
         expected = "Template not found"
         self.assertTrue(actual.startswith(expected), actual)
 
