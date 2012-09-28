@@ -5,7 +5,7 @@
 # For help, run `dayone_export --help`
 
 from . import dayone_export
-import times
+import dateutil.parser
 import jinja2
 import argparse
 import codecs
@@ -57,10 +57,15 @@ def run(args=None):
     if not os.path.exists(os.path.join(args.journal, 'entries')):
         return "Not a valid Day One package: " + args.journal
 
+    # tags
     tags = args.tags
     if tags is not None:
         if tags != 'any':
             tags = [tag.strip() for tag in tags.split(',')]
+
+    # parse after date
+    if args.after:
+        args.after = dateutil.parser.parse(args.after)
 
     try:
         output = dayone_export(args.journal, template=args.template,

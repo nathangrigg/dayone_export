@@ -4,6 +4,8 @@ import dayone_export.cli
 from mock import patch
 import os
 import jinja2
+from datetime import datetime
+import pytz
 
 try:
     from StringIO import StringIO
@@ -15,6 +17,8 @@ class TestEntryObject(unittest.TestCase):
         self.entry = doe.Entry('tests/fake_journal/entries/full.doentry')
         self.entry.set_photo('foo')
         self.no_location = doe.Entry('tests/fake_journal/entries/00-first.doentry')
+        self.entry.set_time_zone('America/Los_Angeles')
+        self.entry.set_localized_date('America/Los_Angeles')
 
     def test_tag_parsing(self):
         self.assertEqual(self.entry.data['Tags'], ['tag'])
@@ -52,10 +56,16 @@ class TestEntryObject(unittest.TestCase):
         self.assertEqual(self.entry['Photo'], 'foo')
 
     def test_getitem_text(self):
-        self.assertEqual(self.entry['Text'], self.entry['Entry Text'])
+        expected = '2: Full entry with time zone, location, weather and a #tag'
+        self.assertEqual(self.entry['Text'], expected)
 
     def test_getitem_date(self):
-        self.assertEqual(self.entry['Date'], self.entry['Creation Date'])
+        date = self.entry['Date']
+        naive_date = date.replace(tzinfo = None)
+        expected_date = datetime(2012, 1, 2, 0, 0)
+        expected_zone = 'America/Los_Angeles'
+        self.assertEqual(naive_date, expected_date)
+        self.assertEqual(date.tzinfo.zone, expected_zone)
 
     def test_getitem_raises_keyerror(self):
         self.assertRaises(KeyError, lambda:self.entry['foo'])
@@ -70,7 +80,6 @@ class TestEntryObject(unittest.TestCase):
 class TestJournalParser(unittest.TestCase):
     def setUp(self):
         self.j = doe.parse_journal('tests/fake_journal')
-        self.reversed = doe.parse_journal('tests/fake_journal', reverse=True)
 
     def test_automatically_set_photos(self):
         expected = 'photos/00F9FA96F29043D09638DF0866EC73B2.jpg'
@@ -79,12 +88,8 @@ class TestJournalParser(unittest.TestCase):
 
     def test_sort_order(self):
         j = self.j
-        result = j[0]['Date'] <= j[1]['Date'] <= j[2]['Date']
-        self.assertTrue(result)
-
-    def test_sort_order(self):
-        j = self.reversed
-        result = j[2]['Date'] <= j[1]['Date'] <= j[0]['Date']
+        k = 'Creation Date'
+        result = j[0][k] <= j[1][k] <= j[2][k]
         self.assertTrue(result)
 
     @patch('jinja2.Template.render')
@@ -92,8 +97,19 @@ class TestJournalParser(unittest.TestCase):
         doe.dayone_export('tests/fake_journal')
         mock_render.assert_called()
 
+    @patch('jinja2.Template.render')
+    def test_dayone_export_run_with_naive_after(self, mock_render):
+        doe.dayone_export('tests/fake_journal', after=datetime(2012, 9, 1))
+        mock_render.assert_called()
+
+    @patch('jinja2.Template.render')
+    def test_dayone_export_run_with_localized_after(self, mock_render):
+        after = pytz.timezone('America/New_York').localize(datetime(2012, 9, 1))
+        doe.dayone_export('tests/fake_journal', after=after)
+        mock_render.assert_called()
+
     def test_after_filter(self):
-        filtered = doe._filter_by_after_date(self.j, "2012-09-01", "utc")
+        filtered = doe._filter_by_after_date(self.j, datetime(2012, 9, 1))
         self.assertEqual(len(filtered), 1)
 
     def test_tags_any_tag(self):

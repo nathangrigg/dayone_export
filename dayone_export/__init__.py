@@ -12,7 +12,7 @@ from . import filters
 import jinja2
 import plistlib
 import os
-import times
+import pytz
 
 SUBKEYS = {'Location': ['Locality', 'Country', 'Place Name',
                  'Administrative Area', 'Longitude', 'Latitude'],
@@ -22,9 +22,21 @@ SUBKEYS = {'Location': ['Locality', 'Country', 'Place Name',
 class Entry(object):
     """Parse a single journal entry.
 
-    Acts like a read-only dictionary.
-
     :raises: IOError, KeyError
+
+    Acts like a read-only dictionary.
+    The keys are as defined in the plist file by the Day One App, with
+    minor exceptions:
+
+    - What Day One calls "Entry Text", we call "Text".
+    - The "Location" and "Weather" dictionaries are flattened,
+      so that their subkeys are accessible as keys of the main dictionary
+    - The "Tag" key is added, with tags parsed from the text
+    - The "Photo" key is added and should contain the path to attached photo
+    - The "Date" key is added and should contain the localized date.
+
+    Note that the "Creation Date" contains a naive date as defined
+    by the plist which should correspond to a UTC time.
     """
 
     def __init__(self, filename):
@@ -58,6 +70,19 @@ class Entry(object):
     def set_photo(self, filename):
         """Set the filename of the photo"""
         self.data['Photo'] = filename
+
+    def set_localized_date(self, timezone):
+        """Set the localized date (the "Date" key)"""
+        try:
+            tz = pytz.timezone(timezone)
+        except pytz.UnknownTimeZoneError:
+            tz = pytz.utc
+
+        self.data["Date"] = tz.localize(self["Creation Date"])
+
+    def set_time_zone(self, timezone):
+        """Set the time zone"""
+        self.data["Time Zone"] = timezone
 
     def place(self, levels=4, ignore=None):
         """Format entry's location as string, with places separated by commas.
@@ -159,6 +184,23 @@ def parse_journal(foldername):
     # make it a list and sort
     journal = journal.values()
     journal.sort(key=itemgetter('Creation Date'))
+
+    # add timezone info
+    newest_tz = 'utc'
+    for entry in reversed(journal):
+        if "Time Zone" in entry:
+            newest_tz = entry["Time Zone"]
+            break
+
+    tz = newest_tz
+    for entry in reversed(journal):
+        if "Time Zone" in entry:
+            tz = entry["Time Zone"]
+        else:
+            entry.set_time_zone(tz)
+
+        entry.set_localized_date(tz)
+
     return journal
 
 
@@ -204,10 +246,11 @@ def _filter_by_tag(journal, tags):
 
     return filter(tag_filter, journal)
 
-def _filter_by_after_date(journal, date, timezone):
-    """return a list of entries after date    """
-    date = times.to_universal(date, timezone=timezone)
-    return [item for item in journal if item['Date'] > date]
+def _filter_by_after_date(journal, date):
+    """return a list of entries after date
+
+    :param date: A naive datetime representing a UTC time"""
+    return [item for item in journal if item['Creation Date'] > date]
 
 
 def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
@@ -226,7 +269,7 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
                  beginning with ``#``.
     :type tags: list of strings
     :param after: Only include entries after the given date.
-    :type after: date string
+    :type after: naive datetime
     :param format: The file extension of the default template to use.
     :type format: string
     :param template: Template file name.
@@ -247,7 +290,7 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
 
     # filters
     env.filters['markdown'] = filters.markup
-    env.filters['format'] = partial(filters.format, tz=timezone)
+    env.filters['format'] = filters.format
     env.filters['imgbase64'] = partial(filters.imgbase64,
       dayone_folder=dayone_folder)
 
@@ -256,8 +299,17 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
 
     # parse journal
     j = parse_journal(dayone_folder)
+
+    # filter and manipulate based on options
     if after is not None:
-        j = _filter_by_after_date(j, after, timezone)
+        if after.tzinfo is None:
+            # set timezone to mirror last journal entry
+            after = j[-1]["Date"].tzinfo.localize(after)
+        # convert to UTC
+        after.astimezone(pytz.utc)
+        # strip timezone info
+        after = after.replace(tzinfo=None)
+        j = _filter_by_after_date(j, after)
     if tags is not None:
         j = _filter_by_tag(j, tags)
     if reverse:
