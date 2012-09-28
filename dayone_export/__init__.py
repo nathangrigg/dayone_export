@@ -53,7 +53,7 @@ class Entry(object):
         self.data['Text'] = self.data.pop('Entry Text', "")
         for key in ['Location', 'Weather']:
             if key in self.data:
-                new_keys = ((k, v) for k, v in self.data[key].viewitems()
+                new_keys = ((k, v) for k, v in self.data[key].items()
                             if k not in self.data) # prevent overwrite
                 self.data.update(new_keys)
 
