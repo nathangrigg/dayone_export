@@ -23,6 +23,8 @@ class Entry(object):
     """Parse a single journal entry.
 
     Acts like a read-only dictionary.
+
+    :raises: IOError, KeyError
     """
 
     def __init__(self, filename):
@@ -31,10 +33,11 @@ class Entry(object):
         except Exception as err:
             raise IOError("Can't read {0}\n{1}".format(filename, err))
 
+        # Required fields
         if "Creation Date" not in self.data:
-            raise KeyError("{0} is missing Creation Date".format(filename))
+            raise KeyError("Creation Date")
         if "Entry Text" not in self.data:
-            raise KeyError("{0} is missing Entry Text".format(filename))
+            raise KeyError("Entry Text")
 
         words = self.data['Entry Text'].split()
         tags = []
@@ -151,7 +154,11 @@ def parse_journal(foldername, reverse=False):
     journal = dict()
     for filename in os.listdir(os.path.join(foldername, 'entries')):
         if os.path.splitext(filename)[1] == '.doentry':
-            entry = Entry(os.path.join(foldername, 'entries', filename))
+            try:
+                entry = Entry(os.path.join(foldername, 'entries', filename))
+            except KeyError as err:
+                pass
+
             journal[entry['UUID']] = entry
 
     if len(journal) == 0:
