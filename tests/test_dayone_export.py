@@ -32,10 +32,8 @@ class TestEntryObject(unittest.TestCase):
         actual = self.entry.place(3)
         self.assertEqual(expected, actual)
 
-    def test_place_range_argument(self):
-        expected = 'Seattle, Washington'
-        actual = self.entry.place(1,3)
-        self.assertEqual(expected, actual)
+    def test_old_invalid_place_range_argument(self):
+        self.assertRaises(TypeError, self.entry.place, 1, 3)
 
     def test_place_list_argument(self):
         expected = 'Seattle, United States'
@@ -47,7 +45,7 @@ class TestEntryObject(unittest.TestCase):
 
     def test_place_ignore_argument(self):
         expected = 'Washington'
-        actual = self.entry.place(2, 3, ignore='United States')
+        actual = self.entry.place([2, 3], ignore='United States')
         self.assertEqual(expected, actual)
 
     def test_getitem_data_key(self):

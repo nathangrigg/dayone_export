@@ -52,7 +52,7 @@ class Entry(object):
         """Set the filename of the photo"""
         self.data['Photo'] = filename
 
-    def place(self, *args, **kwargs):
+    def place(self, levels=4, ignore=None):
         """Format entry's location as string, with places separated by commas.
 
         :param levels: levels of specificity to include
@@ -77,30 +77,32 @@ class Entry(object):
         """
 
         # deal with the arguments
-        if len(args) == 0:
-            return self.place(range(4), **kwargs)
-        if type(args[0]) is int:
-            return self.place(range(*args), **kwargs)
-        ignore = []
-        for k, v in kwargs.items():
-            if k == 'ignore':
-                ignore = v if type(v) is list else [v]
-            else:
-                raise TypeError(
-            "'{0}' is an invalid keyword argument for this function".format(k))
+        if isinstance(levels, int):
+            levels = list(range(levels))
+        if ignore is None:
+            ignore = []
+        if isinstance(ignore, basestring):
+            ignore = [ignore]
 
         # make sure there is a location set
         if not 'Location' in self:
             return "" # fail silently
 
-        # down to business
+        # mix up the order
         order = ['Place Name', 'Locality', 'Administrative Area', 'Country']
-        names = []
-        for n in args[0]:
-            if order[n] in self:
-                value = self[order[n]]
-                if len(value) and value not in ignore:
-                    names.append(value)
+        try:
+            order_keys = [order[n] for n in levels]
+        except TypeError:
+            raise TypeError("'levels' argument must be an integer or list")
+
+        # extract keys
+        names = (self[key] for key in order_keys if key in self)
+
+        # filter
+        try:
+            names = [name for name in names if len(name) and name not in ignore]
+        except TypeError:
+            raise TypeError("'ignore' argument must be a string or list")
 
         return ", ".join(names)
 
