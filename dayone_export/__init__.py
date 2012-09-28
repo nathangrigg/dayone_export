@@ -29,12 +29,12 @@ class Entry(object):
         try:
             self.data = plistlib.readPlist(filename)
         except Exception as err:
-            raise IOError("Can't read {}\n{}".format(filename, err))
+            raise IOError("Can't read {0}\n{1}".format(filename, err))
 
         if "Creation Date" not in self.data:
-            raise KeyError("{} is missing Creation Date".format(filename))
+            raise KeyError("{0} is missing Creation Date".format(filename))
         if "Entry Text" not in self.data:
-            raise KeyError("{} is missing Entry Text".format(filename))
+            raise KeyError("{0} is missing Entry Text".format(filename))
 
         words = self.data['Entry Text'].split()
         tags = []
@@ -84,7 +84,7 @@ class Entry(object):
                 ignore = v if type(v) is list else [v]
             else:
                 raise TypeError(
-            "'{}' is an invalid keyword argument for this function".format(k))
+            "'{0}' is an invalid keyword argument for this function".format(k))
 
         # make sure there is a location set
         if not 'Location' in self:
@@ -142,7 +142,7 @@ class Entry(object):
         return out
 
     def __repr__(self):
-        return "<Entry at {}>".format(self['Date'])
+        return "<Entry at {0}>".format(self['Date'])
 
 
 def parse_journal(foldername, reverse=False):
