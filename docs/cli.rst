@@ -87,5 +87,5 @@ as the output html file.
 
 There is an alternate template which embeds photos directly into the html
 file as base64-encoded images. To use this template, use the option
-``--template imgbase64``.
+``--template imgbase64.html``.
 

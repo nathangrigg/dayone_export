@@ -34,7 +34,7 @@ You can specify a custom template using the command line option `--template`.
 
 You can permanently override the default template by creating a new template named `default.html` and saving it in the folder `~/.dayone_export`.
 
-Full documentation and information about creating new templates is available at [readthedocs][5].
+Full documentation and information about creating new templates is available at [Read the Docs][5].
 
 
 [0]: http://dayoneapp.com
