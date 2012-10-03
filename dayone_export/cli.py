@@ -71,7 +71,10 @@ def run(args=None):
 
     # parse after date
     if args.after:
-        args.after = dateutil.parser.parse(args.after)
+        try:
+            args.after = dateutil.parser.parse(args.after)
+        except (ValueError, OverflowError):
+            return "Unable to parse date '{0}'".format(args.after)
 
     try:
         output = dayone_export(args.journal, template=args.template,
