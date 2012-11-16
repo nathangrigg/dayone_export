@@ -8,6 +8,8 @@ Basic usage::
 For more information::
 
     dayone_export --help
+
+Full documentation is available at http://day-one-export.readthedocs.org.
 """
 
 import sys
@@ -45,6 +47,7 @@ setup(
     classifiers = [
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: BSD License",
         "Environment :: Console",
