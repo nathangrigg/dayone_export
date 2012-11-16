@@ -31,7 +31,6 @@ class Entry(object):
     - What Day One calls "Entry Text", we call "Text".
     - The "Location" and "Weather" dictionaries are flattened,
       so that their subkeys are accessible as keys of the main dictionary
-    - The "Tag" key is added, with tags parsed from the text
     - The "Photo" key is added and should contain the path to attached photo
     - The "Date" key is added and should contain the localized date.
 
@@ -56,16 +55,6 @@ class Entry(object):
                 new_keys = ((k, v) for k, v in self.data[key].items()
                             if k not in self.data) # prevent overwrite
                 self.data.update(new_keys)
-
-        # tags
-        words = self.data['Text'].split()
-        tags = []
-        for word in reversed(words):
-            if not word.startswith('#'):
-                break
-            tags.append(word[1:])
-
-        self.data['Tags'] = tags
 
     def set_photo(self, filename):
         """Set the filename of the photo"""
