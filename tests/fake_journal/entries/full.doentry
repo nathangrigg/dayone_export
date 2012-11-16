@@ -5,7 +5,7 @@
 	<key>Creation Date</key>
 	<date>2012-01-02T00:00:00Z</date>
 	<key>Entry Text</key>
-	<string>2: Full entry with time zone, location, weather and a #tag</string>
+	<string>2: Full entry with time zone, location, weather and a tag</string>
 		<key>Location</key>
 	<dict>
 		<key>Administrative Area</key>
@@ -38,5 +38,9 @@
 	</dict>
 	<key>UUID</key>
 	<string>00F9FA96F29043D09638DF0866000002</string>
+	<key>Tags</key>
+	<array>
+	    <string>tag</string>
+	</array>
 </dict>
 </plist>
