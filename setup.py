@@ -3,7 +3,7 @@ Command line script to transform your journal to html or some other format.
 
 Basic usage::
 
-    dayone_export [--output FILE] [--timezone ZONE] [opts] JOURNAL
+    dayone_export [--output FILE] [opts] JOURNAL
 
 For more information::
 
