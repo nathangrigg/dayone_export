@@ -18,7 +18,7 @@ class TestEntryObject(unittest.TestCase):
         self.entry.set_time_zone('America/Los_Angeles')
         self.entry.set_localized_date('America/Los_Angeles')
 
-    def test_tag_parsing(self):
+    def test_tags(self):
         self.assertEqual(self.entry.data['Tags'], ['tag'])
 
     def test_set_photo(self):
@@ -54,7 +54,7 @@ class TestEntryObject(unittest.TestCase):
         self.assertEqual(self.entry['Photo'], 'foo')
 
     def test_getitem_text(self):
-        expected = '2: Full entry with time zone, location, weather and a #tag'
+        expected = '2: Full entry with time zone, location, weather and a tag'
         self.assertEqual(self.entry['Text'], expected)
 
     def test_getitem_date(self):

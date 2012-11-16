@@ -64,9 +64,6 @@ Use the ``--tags`` option with a comma-separated list of tags to include.
 If you use the option ``--tags any``, then any entry with at least one tag
 will be included.
 
-Tags are interpreted as words at the end of an entry beginning with ``#``.
-
-
 Limit export to recent entries
 ------------------------------
 
