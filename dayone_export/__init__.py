@@ -229,9 +229,9 @@ def _determine_inheritance(template, template_dir, format):
 def _filter_by_tag(journal, tags):
     """filter by list of tags. tags='any' allows any entry with some tag"""
     if tags == 'any':
-        tag_filter = lambda item: item['Tags']
+        tag_filter = lambda item: 'Tags' in item
     else:
-        tag_filter = lambda item: set(item['Tags']).intersection(set(tags))
+        tag_filter = lambda item: 'Tags' in item and set(item['Tags']).intersection(set(tags))
 
     return filter(tag_filter, journal)
 
