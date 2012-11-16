@@ -9,7 +9,7 @@ Basic Usage
 
 ::
 
-    usage: dayone_export [--output FILE] [--timezone ZONE] [opts] journal
+    usage: dayone_export [--output FILE] [opts] journal
 
     Export Day One entries using a Jinja template
 
@@ -18,8 +18,7 @@ Basic Usage
 
     optional arguments:
       -h, --help          show this help message and exit
-      --output FILE       file to write (default print to terminal)
-      --timezone ZONE     time zone name. (--timezone "?" for more info)
+      --output FILE       file to write (default print to stdout)
       --format FMT        output format (default guess from output file extension)
       --template NAME     name or file of template to use
       --template-dir DIR  location of templates (default ~/.dayone_export)
