@@ -3,6 +3,11 @@ using a Jinja template.
 
 by Nathan Grigg
 
+[![Build status][statusimage]][statuslink]
+
+[statusimage]: https://api.travis-ci.org/nathan11g/dayone_export.png?branch=master
+[statuslink]: https://travis-ci.org/nathan11g/dayone_export
+
 # Installation
 
 Use [pip][4]:
