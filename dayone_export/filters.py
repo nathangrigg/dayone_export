@@ -43,7 +43,7 @@ except ImportError:
         return text
 else:
     def markup(text, *args, **kwargs):
-        return markdown.markdown(text, *args, **kwargs)
+        return markdown.markdown(text, ['extra'], *args, **kwargs)
 
 
 #############################
