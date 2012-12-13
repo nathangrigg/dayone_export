@@ -50,6 +50,7 @@ else:
                                        'def_list',
                                        'abbr',
                                        'dayone_export.mdx_hashtag',
+                                       'dayone_export.mdx_urlize',
                                        ],
       extension_configs={'footnotes': [('UNIQUE_IDS', True)]},
       output_format='html5')
