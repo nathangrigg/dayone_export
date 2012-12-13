@@ -42,8 +42,19 @@ except ImportError:
         warn_once('markdown')
         return text
 else:
+    md = markdown.Markdown(extensions=['footnotes',
+                                       'tables',
+                                       'smart_strong',
+                                       'fenced_code',
+                                       'attr_list',
+                                       'def_list',
+                                       'abbr',
+                                       ],
+      extension_configs={'footnotes': [('UNIQUE_IDS', True)]},
+      output_format='html5')
     def markup(text, *args, **kwargs):
-        return markdown.markdown(text, ['extra'], *args, **kwargs)
+        md.reset()
+        return md.convert(text)
 
 
 #############################
