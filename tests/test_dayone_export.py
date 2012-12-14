@@ -218,8 +218,9 @@ class TestCLI(unittest.TestCase):
 class TestMarkdown(unittest.TestCase):
     """Test the markdown formatter"""
     def setUp(self):
-        self.md = doe.filters.markdown_filter(autobold=False)
+        self.md = doe.filters.markdown_filter()
         self.autobold = doe.filters.markdown_filter(autobold=True)
+        self.nl2br = doe.filters.markdown_filter(nl2br=True)
 
     def test_basic_markdown(self):
         expected = '<p>This <em>is</em> a <strong>test</strong>.</p>'
@@ -276,5 +277,9 @@ class TestMarkdown(unittest.TestCase):
         actual = self.autobold('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
         self.assertEqual(expected, actual)
 
+    def test_nl2br(self):
+        expected = '<p>a<br>\nb</p>'
+        actual = self.nl2br('a\nb')
+        self.assertEqual(expected, actual)
 
 

@@ -242,7 +242,7 @@ def _filter_by_after_date(journal, date):
     return [item for item in journal if item['Creation Date'] > date]
 
 def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
-    after=None, format=None, template_dir=None, autobold=False):
+    after=None, format=None, template_dir=None, autobold=False, nl2br=False):
     """Render a template using entries from a Day One journal.
 
     :param dayone_folder: Name of Day One folder; generally ends in ``.dayone``.
@@ -272,6 +272,8 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
     :param autobold: Specifies that the first line of each post should be
                      a heading
     :type autobold: bool
+    :param nl2br:  Specifies that new lines should be translated in to <br>s
+    :type nl2br: bool
     :returns: Filled in template as string.
     """
 

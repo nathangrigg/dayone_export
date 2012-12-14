@@ -27,6 +27,7 @@ Basic Usage
       --after DATE        export entries published after this date
       --reverse           display in reverse chronological order
       --autobold          autobold first lines (titles) of posts
+      --nl2br             convert each new line to a <br>
 
     If the Day One package has photos, you may need to copy the "photos" folder
     from the package into the same directory as the output file.
@@ -72,6 +73,13 @@ Use the ``--after`` option to only export entries after a certain date.
 For best results, use some kind of
 standard form for the date (e.g. ``2012-03-04``).
 
+Markdown options
+----------------
+
+The ``--autobold`` option will convert the first line of each post into a heading,
+as long as it is relatively short (similar to the way Day One optionally can)
+
+The ``--nl2br`` option will insert a ``<br>`` tag after each new line.
 
 
 Link to or embed photos

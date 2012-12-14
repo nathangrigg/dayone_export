@@ -38,6 +38,8 @@ def parse_args(args=None):
       help="display in reverse chronological order")
     parser.add_argument('--autobold', action="store_true",
       help="autobold first lines (titles) of posts")
+    parser.add_argument('--nl2br', action="store_true",
+      help="convert each new line to a <br>")
     return parser.parse_args(args)
 
 def print_bytes(s):
@@ -82,7 +84,7 @@ def run(args=None):
         output = dayone_export(args.journal, template=args.template,
           reverse=args.reverse, tags=tags, after=args.after,
           format=args.format, template_dir=args.template_dir,
-          autobold=args.autobold)
+          autobold=args.autobold, nl2br=args.nl2br)
     except jinja2.TemplateNotFound as err:
         return "Template not found: {0}".format(err)
 

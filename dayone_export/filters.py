@@ -36,7 +36,7 @@ warn_once = WarnOnce({
 # Markdown
 #############################
 
-def markdown_filter(autobold=False):
+def markdown_filter(autobold=False, nl2br=False):
     """Returns a markdown filter"""
     extensions = ['footnotes',
                   'tables',
@@ -51,6 +51,9 @@ def markdown_filter(autobold=False):
 
     if autobold:
         extensions.append('dayone_export.mdx_autobold')
+
+    if nl2br:
+        extensions.append('nl2br')
 
     md = markdown.Markdown(extensions=extensions,
       extension_configs={'footnotes': [('UNIQUE_IDS', True)]},
