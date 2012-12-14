@@ -242,7 +242,7 @@ def _filter_by_after_date(journal, date):
     return [item for item in journal if item['Creation Date'] > date]
 
 def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
-    after=None, format=None, template_dir=None):
+    after=None, format=None, template_dir=None, autobold=False):
     """Render a template using entries from a Day One journal.
 
     :param dayone_folder: Name of Day One folder; generally ends in ``.dayone``.
@@ -269,6 +269,9 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
                          ``~/.dayone_export`` followed by the
                          dayone_export package.
     :type template_dir: string
+    :param autobold: Specifies that the first line of each post should be
+                     a heading
+    :type autobold: bool
     :returns: Filled in template as string.
     """
 
@@ -277,7 +280,7 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
     env = jinja2.Environment(loader=loader, trim_blocks=True)
 
     # filters
-    env.filters['markdown'] = filters.markup
+    env.filters['markdown'] = filters.markdown_filter(autobold=autobold)
     env.filters['format'] = filters.format
     env.filters['imgbase64'] = partial(filters.imgbase64,
       dayone_folder=dayone_folder)

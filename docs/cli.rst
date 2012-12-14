@@ -26,6 +26,7 @@ Basic Usage
                           'any' has a special meaning.
       --after DATE        export entries published after this date
       --reverse           display in reverse chronological order
+      --autobold          autobold first lines (titles) of posts
 
     If the Day One package has photos, you may need to copy the "photos" folder
     from the package into the same directory as the output file.

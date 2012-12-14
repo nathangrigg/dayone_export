@@ -6,6 +6,7 @@ import os
 import sys
 import base64
 import pytz
+import markdown
 from StringIO import StringIO
 
 class WarnOnce(object):
@@ -28,35 +29,38 @@ class WarnOnce(object):
             sys.stderr.write(self.warnings[warning] + '\n')
 
 warn_once = WarnOnce({
-'markdown': 'Warning: Cannot load markdown module. Leaving text as it is.',
 'imgbase64': 'Warning: Cannot load Python Imaging Library. Encoding full-size images.'
 })
 
 #############################
 # Markdown
 #############################
-try:
-    import markdown
-except ImportError:
-    def markup(text, *args, **kwargs):
-        warn_once('markdown')
-        return text
-else:
-    md = markdown.Markdown(extensions=['footnotes',
-                                       'tables',
-                                       'smart_strong',
-                                       'fenced_code',
-                                       'attr_list',
-                                       'def_list',
-                                       'abbr',
-                                       'dayone_export.mdx_hashtag',
-                                       'dayone_export.mdx_urlize',
-                                       ],
+
+def markdown_filter(autobold=False):
+    """Returns a markdown filter"""
+    extensions = ['footnotes',
+                  'tables',
+                  'smart_strong',
+                  'fenced_code',
+                  'attr_list',
+                  'def_list',
+                  'abbr',
+                  'dayone_export.mdx_hashtag',
+                  'dayone_export.mdx_urlize',
+                 ]
+
+    if autobold:
+        extensions.append('dayone_export.mdx_autobold')
+
+    md = markdown.Markdown(extensions=extensions,
       extension_configs={'footnotes': [('UNIQUE_IDS', True)]},
       output_format='html5')
+
     def markup(text, *args, **kwargs):
         md.reset()
         return md.convert(text)
+
+    return markup
 
 
 #############################
