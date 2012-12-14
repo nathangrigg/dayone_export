@@ -7,3 +7,8 @@ install:
     - test $TRAVIS_PYTHON_VERSION = "2.6" && pip install argparse || echo
     - pip install . --use-mirrors
 script: cd tests && nosetests
+
+notifications:
+    email:
+        on_success: never
+        on_failure: always

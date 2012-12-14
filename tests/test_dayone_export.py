@@ -215,3 +215,66 @@ class TestCLI(unittest.TestCase):
         expected = "Template not found"
         self.assertTrue(actual.startswith(expected), actual)
 
+class TestMarkdown(unittest.TestCase):
+    """Test the markdown formatter"""
+    def setUp(self):
+        self.md = doe.filters.markdown_filter(autobold=False)
+        self.autobold = doe.filters.markdown_filter(autobold=True)
+
+    def test_basic_markdown(self):
+        expected = '<p>This <em>is</em> a <strong>test</strong>.</p>'
+        actual = self.md('This *is* a **test**.')
+        self.assertEqual(expected, actual)
+
+    def test_urlize_http(self):
+        expected = '<p>xx (<a href="http://url.com">http://url.com</a>) xx</p>'
+        actual = self.md('xx (http://url.com) xx')
+        self.assertEqual(expected, actual)
+
+    def test_urlize_www(self):
+        expected = '<p>xx <a href="http://www.google.com">www.google.com</a> xx</p>'
+        actual = self.md('xx www.google.com xx')
+        self.assertEqual(expected, actual)
+
+    def test_urlize_no_www(self):
+        expected = '<p>xx <a href="http://bit.ly/blah">bit.ly/blah</a> xx</p>'
+        actual = self.md('xx bit.ly/blah xx')
+        self.assertEqual(expected, actual)
+
+    def test_urlize_quotes(self):
+        expected = '<p>"<a href="http://www.url.com">www.url.com</a>"</p>'
+        actual = self.md('"www.url.com"')
+        self.assertEqual(expected, actual)
+
+    def test_urlize_period(self):
+        expected = '<p>See <a href="http://url.com">http://url.com</a>.</p>'
+        actual = self.md('See http://url.com.')
+        self.assertEqual(expected, actual)
+
+    def test_two_footnotes(self):
+        """Make sure the footnote counter is working"""
+        text = "Footnote[^1]\n\n[^1]: Footnote text"
+        self.assertNotEqual(self.md(text), self.md(text))
+
+    def test_hashtag_does_not_become_h1(self):
+        expected = '<p>#tag and #tag</p>'
+        actual = self.md('#tag and #tag')
+        self.assertEqual(expected, actual)
+
+    def test_h1_becomes_h1(self):
+        expected = '<h1>tag and #tag</h1>'
+        actual = self.md('# tag and #tag')
+        self.assertEqual(expected, actual)
+
+    def test_autobold(self):
+        expected = '<h1>This is a title</h1>\n<p>This is the next line</p>'
+        actual = self.autobold('This is a title\nThis is the next line')
+        self.assertEqual(expected, actual)
+
+    def test_autobold_doesnt_happen_on_long_line(self):
+        expected = '<p>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</p>'
+        actual = self.autobold('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+        self.assertEqual(expected, actual)
+
+
+
