@@ -1,3 +1,9 @@
+0.3.0
+    Markdown extensions for footnotes and tables
+    New option to autobold first line
+    Hashtags at the beginnings of lines are no longer treated as headings
+    Autolink urls
+
 0.2.0
     Supports Day One's native tag format
     Supports Day One's native Timezone format
