@@ -1,3 +1,6 @@
+0.4.0
+    Major bug fix: time zone calculation error
+
 0.3.0
     Markdown extensions for footnotes and tables
     New option to autobold first line

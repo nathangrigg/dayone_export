@@ -134,6 +134,14 @@ For example::
 
     {{ entry['Date'] | format('%Y-%m-%d %H:%M:%S %z') }}
 
+The ``format`` filter also accepts an optional timezone argument, which
+overrides the native timezone of every entry. For example::
+
+    {{ entry['Date'] | format('%-I:%M %p %Z', tz='America/Los_Angeles') }}
+
+displays the date in US Pacific time, regardless of the timezone where
+the entry was recorded.
+
 Convert to Markdown
 -------------------
 

@@ -26,7 +26,7 @@ if sys.version_info >= (3,):
 
 setup(
     name = "dayone_export",
-    version = "0.3.0",
+    version = "0.4.0",
     description = "Export Day One journal using Jinja2 templates",
     author = "Nathan Grigg",
     author_email = "nathan@nathanamy.org",

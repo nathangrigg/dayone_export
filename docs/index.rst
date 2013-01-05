@@ -16,4 +16,5 @@ Table of Contents
    cli
    templates
    module
+   timezones
 
