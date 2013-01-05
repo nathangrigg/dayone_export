@@ -60,7 +60,7 @@ class TestEntryObject(unittest.TestCase):
     def test_getitem_date(self):
         date = self.entry['Date']
         naive_date = date.replace(tzinfo = None)
-        expected_date = datetime(2012, 1, 2, 0, 0)
+        expected_date = datetime(2012, 1, 1, 16, 0)
         expected_zone = 'America/Los_Angeles'
         self.assertEqual(naive_date, expected_date)
         self.assertEqual(date.tzinfo.zone, expected_zone)

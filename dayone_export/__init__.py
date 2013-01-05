@@ -67,7 +67,8 @@ class Entry(object):
         except pytz.UnknownTimeZoneError:
             tz = pytz.utc
 
-        self.data["Date"] = tz.localize(self["Creation Date"])
+        localized_utc = pytz.utc.localize(self["Creation Date"])
+        self.data["Date"] = localized_utc.astimezone(tz)
 
     def set_time_zone(self, timezone):
         """Set the time zone"""
