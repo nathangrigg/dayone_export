@@ -103,6 +103,22 @@ inside double braces.
 More information is available in the documentation for :ref:`Entry`.
 
 
+Weather
+------
+
+You may want to combine the weather into a single string.
+You can do this with the ``weather`` method.
+
+The ``weather`` method takes one parameter to display the temperature as celcius
+or fahrenheit. For example, ``entry.weather('F')`` will display the temperature
+in fahrenheit. The same can be done for celsius but with ``entry.weather('C')``.
+ 
+Don't forget that to insert any of this into the document, you need to put it
+inside double braces.
+
+More information is available in the documentation for :ref:`Entry`.
+
+
 Jinja Filters
 -------------
 
