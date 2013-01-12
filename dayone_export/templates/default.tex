@@ -1,0 +1,20 @@
+\documentclass[11pt,letterpaper]{scrartcl}
+\usepackage{graphicx}
+\setcounter{secnumdepth}{0}
+\title{Journal Entries}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\CMD{for entry in journal}
+    \section{\VAR{entry['Date'] | format('%A, %b %e, %Y at %-I:%M %p %Z')}}
+    \VAR{entry['Text'] | escape_tex}
+    \CMD{if 'Photo' in entry}
+        \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.5\textwidth]{\VAR{entry['Photo']}}
+        \end{figure}
+    \CMD{endif}
+\CMD{endfor}
+\end{document}
