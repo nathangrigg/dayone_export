@@ -282,4 +282,24 @@ class TestMarkdown(unittest.TestCase):
         actual = self.nl2br('a\nb')
         self.assertEqual(expected, actual)
 
+class TestLatex(unittest.TestCase):
+    def test_latex_escape_backslash(self):
+        actual = dayone_export.filters.escape_tex(r'bl\ah')
+        expected = r'bl\textbackslash{}ah'
+        self.assertEqual(expected, actual)
+
+    def test_latex_escape_dollar(self):
+        actual = dayone_export.filters.escape_tex(r'bl$ah')
+        expected = r'bl\$ah'
+        self.assertEqual(expected, actual)
+
+    def test_latex_escape_sybols(self):
+        actual = dayone_export.filters.escape_tex(r'${}#&')
+        expected = r'\$\{\}\#\&'
+        self.assertEqual(expected, actual)
+
+
+
+
+
 
