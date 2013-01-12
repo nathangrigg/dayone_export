@@ -284,21 +284,24 @@ class TestMarkdown(unittest.TestCase):
 
 class TestLatex(unittest.TestCase):
     def test_latex_escape_backslash(self):
-        actual = dayone_export.filters.escape_tex(r'bl\ah')
+        actual = doe.filters.escape_tex(r'bl\ah')
         expected = r'bl\textbackslash{}ah'
         self.assertEqual(expected, actual)
 
     def test_latex_escape_dollar(self):
-        actual = dayone_export.filters.escape_tex(r'bl$ah')
+        actual = doe.filters.escape_tex(r'bl$ah')
         expected = r'bl\$ah'
         self.assertEqual(expected, actual)
 
-    def test_latex_escape_sybols(self):
-        actual = dayone_export.filters.escape_tex(r'${}#&')
-        expected = r'\$\{\}\#\&'
+    def test_latex_escape_symbols(self):
+        actual = doe.filters.escape_tex(r'${}#^&~')
+        expected = r'\$\{\}\#\textasciicircum{}\&\textasciitilde{}'
         self.assertEqual(expected, actual)
 
-
+    def test_latex_sanity(self):
+        actual = doe.dayone_export(fake_journal, format='tex')
+        expected = r'\documentclass'
+        self.assertEqual(actual[:14], expected)
 
 
 

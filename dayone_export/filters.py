@@ -81,8 +81,8 @@ def format(value, fmt='%A, %b %e, %Y', tz=None):
 LATEX_SUBS = (
     (re.compile(r'\\'), r'\\textbackslashzzz'),
     (re.compile(r'([{}_#%&$])'), r'\\\1'),
-    (re.compile(r'~'), r'\~{}'),
-    (re.compile(r'\^'), r'\^{}'),
+    (re.compile(r'~'), r'\\textasciitilde{}'),
+    (re.compile(r'\^'), r'\\textasciicircum{}'),
     (re.compile(r'"'), r"''"),
     (re.compile(r'\.\.\.+'), r'\\ldots'),
     (re.compile(r'\\textbackslashzzz'), r'\\textbackslash{}'),
