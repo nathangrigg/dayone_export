@@ -127,16 +127,16 @@ class Entry(object):
             raise TypeError("'ignore' argument must be a string or list")
 
         return ", ".join(names)
-        
+
     def weather(self, temperature_type):
         if not 'Weather' in self:
             return "" # fail silently
-        
+
         if temperature_type.lower() == 'celsius' or temperature_type.lower() == 'c':
             temperature = self.data['Celsius']
         else:
             temperature = self.data['Fahrenheit']
-        
+
         weather = "{0}&deg; {1}".format(temperature, self.data['Description'])
         return weather
 
@@ -292,13 +292,25 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
 
     # figure out which template to use
     loader, template = _determine_inheritance(template, template_dir, format)
-    env = jinja2.Environment(loader=loader, trim_blocks=True)
+
+    # custom latex template syntax
+    custom_syntax = {}
+    if os.path.splitext(template)[1] == ".tex":
+        custom_syntax = {'block_start_string': r'\CMD{',
+                         'block_end_string': '}',
+                         'variable_start_string': r'\VAR{',
+                         'variable_end_string': '}',
+                         }
+    # define jinja environment
+    env = jinja2.Environment(loader=loader, trim_blocks=True, **custom_syntax)
 
     # filters
     env.filters['markdown'] = filters.markdown_filter(autobold=autobold)
     env.filters['format'] = filters.format
+    env.filters['escape_tex'] = filters.escape_tex
     env.filters['imgbase64'] = partial(filters.imgbase64,
       dayone_folder=dayone_folder)
+
 
     # load template
     template = env.get_template(template)

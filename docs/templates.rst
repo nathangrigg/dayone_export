@@ -112,7 +112,7 @@ You can do this with the ``weather`` method.
 The ``weather`` method takes one parameter to display the temperature as celcius
 or fahrenheit. For example, ``entry.weather('F')`` will display the temperature
 in fahrenheit. The same can be done for celsius but with ``entry.weather('C')``.
- 
+
 Don't forget that to insert any of this into the document, you need to put it
 inside double braces.
 
@@ -165,6 +165,31 @@ This program defines a custom filter called ``markdown`` which converts
 markdown text to html::
 
     {{ entry['Text'] | markdown }}
+
+Latex Templates
+---------------
+
+The standard Jinja template syntax clashes with many Latex control characters.
+If you create a Latex template, you will need to use different syntax.
+
+In a Latex template, you use ``\CMD{...}`` instead of ``{% ... %}`` for
+block statements and ``\VAR{...}`` instead of ``{{ ... }}`` to insert
+variables. For example::
+
+    \CMD{for entry in journal}
+    \section{\VAR{entry['Date'] | format}}
+    \CMD{endfor}
+
+You will also find the ``escape_tex`` filter useful, which escapes
+Latex control characters::
+
+    \VAR{entry['Text'] | escape_tex}
+
+Note that the ``markdown`` filter outputs HTML so should not be used.
+There is currently no support for converting markdown input
+to formatted Latex output.
+
+Latex templates must end with the ``.tex`` extension.
 
 
 Inline images with base64 encoding

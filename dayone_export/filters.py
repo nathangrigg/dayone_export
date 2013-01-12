@@ -3,6 +3,7 @@
 # BSD License
 
 import os
+import re
 import sys
 import base64
 import pytz
@@ -73,6 +74,26 @@ def format(value, fmt='%A, %b %e, %Y', tz=None):
     if tz:
         value = value.astimezone(pytz.timezone(tz))
     return value.strftime(fmt)
+
+#############################
+# Escape Latex (http://flask.pocoo.org/snippets/55/)
+#############################
+LATEX_SUBS = (
+    (re.compile(r'\\'), r'\\textbackslashzzz'),
+    (re.compile(r'([{}_#%&$])'), r'\\\1'),
+    (re.compile(r'~'), r'\~{}'),
+    (re.compile(r'\^'), r'\^{}'),
+    (re.compile(r'"'), r"''"),
+    (re.compile(r'\.\.\.+'), r'\\ldots'),
+    (re.compile(r'\\textbackslashzzz'), r'\\textbackslash{}'),
+)
+
+def escape_tex(value):
+    newval = value
+    for pattern, replacement in LATEX_SUBS:
+        newval = pattern.sub(replacement, newval)
+    return newval
+
 
 #############################
 # Base64 encode images
