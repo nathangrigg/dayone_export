@@ -127,16 +127,16 @@ class Entry(object):
             raise TypeError("'ignore' argument must be a string or list")
 
         return ", ".join(names)
-        
+
     def weather(self, temperature_type):
         if not 'Weather' in self:
             return "" # fail silently
-        
+
         if temperature_type.lower() == 'celsius' or temperature_type.lower() == 'c':
             temperature = self.data['Celsius']
         else:
             temperature = self.data['Fahrenheit']
-        
+
         weather = "{0}&deg; {1}".format(temperature, self.data['Description'])
         return weather
 
