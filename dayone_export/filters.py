@@ -116,7 +116,7 @@ else:
         filename, ext = os.path.splitext(infile)
         im = Image.open(dayone_folder + "/" + infile)
         im.thumbnail(size, Image.ANTIALIAS)
-        output = StringIO.StringIO()
+        output = StringIO()
         im.save(output, "jpeg")  # we assume that we get best compressions with jpeg
         base64data = output.getvalue().encode("base64")
         return "data:image/jpeg;base64,%s" % (base64data)
