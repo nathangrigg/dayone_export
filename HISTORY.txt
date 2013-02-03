@@ -1,6 +1,7 @@
 0.4.1
     Entry.weather() helper function
     Latex template support
+    Bug fix in base 64 encode filter
 
 0.4.0
     Major bug fix: time zone calculation error

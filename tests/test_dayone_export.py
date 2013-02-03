@@ -302,7 +302,3 @@ class TestLatex(unittest.TestCase):
         actual = doe.dayone_export(fake_journal, format='tex')
         expected = r'\documentclass'
         self.assertEqual(actual[:14], expected)
-
-
-
-
