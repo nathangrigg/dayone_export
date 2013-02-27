@@ -9,6 +9,7 @@
 from operator import itemgetter
 from functools import partial
 from . import filters
+from .version import VERSION
 import jinja2
 import plistlib
 import os

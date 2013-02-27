@@ -4,7 +4,7 @@
 #
 # For help, run `dayone_export --help`
 
-from . import dayone_export
+from . import dayone_export, VERSION
 import dateutil.parser
 import jinja2
 import argparse
@@ -40,6 +40,7 @@ def parse_args(args=None):
       help="autobold first lines (titles) of posts")
     parser.add_argument('--nl2br', action="store_true",
       help="convert each new line to a <br>")
+    parser.add_argument('--version', action='version', version=VERSION)
     return parser.parse_args(args)
 
 def print_bytes(s):
