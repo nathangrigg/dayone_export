@@ -14,6 +14,7 @@ import jinja2
 import plistlib
 import os
 import pytz
+import itertools
 
 SUBKEYS = {'Location': ['Locality', 'Country', 'Place Name',
                  'Administrative Area', 'Longitude', 'Latitude'],
@@ -256,7 +257,8 @@ def _filter_by_after_date(journal, date):
     return [item for item in journal if item['Creation Date'] > date]
 
 def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
-    after=None, format=None, template_dir=None, autobold=False, nl2br=False):
+    after=None, format=None, template_dir=None, autobold=False, nl2br=False,
+    time_grouper=""):
     """Render a template using entries from a Day One journal.
 
     :param dayone_folder: Name of Day One folder; generally ends in ``.dayone``.
@@ -288,6 +290,10 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
     :type autobold: bool
     :param nl2br:  Specifies that new lines should be translated in to <br>s
     :type nl2br: bool
+    :type time_grouper: string
+    :param time_grouper: Time strftime format. 
+                When it changes, new template is created. 
+                If specified, function becomes an interator returning the next template.
     :returns: Filled in template as string.
     """
 
@@ -334,7 +340,16 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
     if reverse:
         j.reverse()
 
-    # may throw an exception if the template is malformed
-    # the traceback is helpful, so i'm letting it through
+
+    # Split into groups, possibly of length one
+    # Generate a new output for each time the 'time_grouper' changes.
+    # Yield the resulting time_grouper plus the output.
+    # If the time_grouper is an empty string (the default), we'll get
+    # an empty grouper plus the rendering of the full list of entries.
+    # This may throw an exception if the template is malformed.
+    # The traceback is helpful, so I'm letting it through
     # it might be nice to clean up the error message, someday
-    return template.render(journal=j)
+
+    for k, g in itertools.groupby(j, lambda e: e['Date'].strftime(time_grouper)):
+        yield k, template.render(journal=list(g))
+

@@ -40,6 +40,9 @@ def parse_args(args=None):
       help="autobold first lines (titles) of posts")
     parser.add_argument('--nl2br', action="store_true",
       help="convert each new line to a <br>")
+    parser.add_argument('--time-group', metavar="FMT", default="",
+      help="create new file each time this strftime-format suffix changes")
+
     parser.add_argument('--version', action='version', version=VERSION)
     return parser.parse_args(args)
 
@@ -82,22 +85,26 @@ def run(args=None):
             return "Unable to parse date '{0}'".format(args.after)
 
     try:
-        output = dayone_export(args.journal, template=args.template,
+        generator = dayone_export(args.journal, template=args.template,
           reverse=args.reverse, tags=tags, after=args.after,
           format=args.format, template_dir=args.template_dir,
-          autobold=args.autobold, nl2br=args.nl2br)
+          autobold=args.autobold, nl2br=args.nl2br, time_grouper=args.time_group)
     except jinja2.TemplateNotFound as err:
         return "Template not found: {0}".format(err)
 
-    if args.output:
-        try:
-            with codecs.open(args.output, 'w', encoding='utf-8') as f:
-                f.write(output)
-        except IOError as err:
-            return str(err)
-    else:
-        print_bytes(output.encode('utf-8'))
-        print_bytes("\n".encode('utf-8'))
+    try:
+        
+        # Output is a generator returning each file's name suffix and contents one at a time
+        for suffix, output in generator:
+            if args.output:
+                with codecs.open(args.output + suffix, 'w', encoding='utf-8') as f:
+                    f.write(output)
+            else:
+                print_bytes(output.encode('utf-8'))
+                print_bytes("\n".encode('utf-8'))
+
+    except IOError as err:
+        return str(err)
 
 
 if __name__ == "__main__":
