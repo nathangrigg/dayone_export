@@ -14,6 +14,7 @@ import jinja2
 import plistlib
 import os
 import pytz
+from collections import defaultdict
 
 SUBKEYS = {'Location': ['Locality', 'Country', 'Place Name',
                  'Administrative Area', 'Longitude', 'Latitude'],
@@ -256,7 +257,8 @@ def _filter_by_after_date(journal, date):
     return [item for item in journal if item['Creation Date'] > date]
 
 def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
-    after=None, format=None, template_dir=None, autobold=False, nl2br=False):
+    after=None, format=None, template_dir=None, autobold=False, nl2br=False,
+    filename_template=""):
     """Render a template using entries from a Day One journal.
 
     :param dayone_folder: Name of Day One folder; generally ends in ``.dayone``.
@@ -288,7 +290,11 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
     :type autobold: bool
     :param nl2br:  Specifies that new lines should be translated in to <br>s
     :type nl2br: bool
-    :returns: Filled in template as string.
+    :type filename_template: string
+    :param filename_template: An eventual filename, which can include strftime formatting codes.
+                Each time the result of formatting an entry's timestamp with this changes,
+                a new result will be returned.
+    :returns: Iterator yielding (filename, filled_in_template) as strings on each iteration.
     """
 
     # figure out which template to use
@@ -334,7 +340,20 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
     if reverse:
         j.reverse()
 
-    # may throw an exception if the template is malformed
-    # the traceback is helpful, so i'm letting it through
+
+    # Split into groups, possibly of length one
+    # Generate a new output for each time the 'filename_template' changes.
+    # Yield the resulting filename_template plus the output.
+    # If the filename_template is an empty string (the default), we'll get
+    # an empty grouper plus the rendering of the full list of entries.
+    # This may throw an exception if the template is malformed.
+    # The traceback is helpful, so I'm letting it through
     # it might be nice to clean up the error message, someday
-    return template.render(journal=j)
+
+    output_groups = defaultdict(list)
+    for e in j:
+        output_groups[e['Date'].strftime(filename_template)].append(e)
+
+    for k in output_groups:
+        yield k, template.render(journal=output_groups[k])
+

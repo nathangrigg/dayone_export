@@ -18,7 +18,7 @@ Basic Usage
 
     optional arguments:
       -h, --help          show this help message and exit
-      --output FILE       file to write (default print to stdout)
+      --output FILE       file to write (default print to stdout) or filename template
       --format FMT        output format (default guess from output file extension)
       --template NAME     name or file of template to use
       --template-dir DIR  location of templates (default ~/.dayone_export)
@@ -93,4 +93,22 @@ as the output html file.
 There is an alternate template which embeds photos directly into the html
 file as base64-encoded images. To use this template, use the option
 ``--template imgbase64.html``.
+
+Template filenames and grouping
+-------------------------------
+
+The ``--output`` option specifies the output filename if you
+want something other than stdout.  
+
+It also has another feature: you can include strftime-style formatting codes,
+in which case multiple files will be produced, each containing the journal entries 
+with timestamps that result in the same filename.
+
+Examples:
+
+  ``--output journal_%Y_%m.md`` will produces monthly files named journal_2013_02.md etc.
+
+  ``--output diary_%a.html`` will produce a separate file for each weekday.
+
+
 
