@@ -299,6 +299,6 @@ class TestLatex(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_latex_sanity(self):
-        suffix, actual = doe.dayone_export(fake_journal, format='tex').next()
+        suffix, actual = next(doe.dayone_export(fake_journal, format='tex'))
         expected = r'\documentclass'
         self.assertEqual(actual[:14], expected)
