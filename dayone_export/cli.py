@@ -23,7 +23,7 @@ def parse_args(args=None):
         as the output file.""")
     parser.add_argument('journal', help="path to Day One journal package")
     parser.add_argument('--output', metavar="FILE",
-      help="file to write (default print to stdout)")
+      help="file to write, or filename template (default print to stdout)")
     parser.add_argument('--format', metavar="FMT",
       help="output format (default guess from output file extension)")
     parser.add_argument('--template', metavar="NAME",

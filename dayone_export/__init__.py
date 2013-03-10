@@ -15,6 +15,7 @@ import plistlib
 import os
 import pytz
 import itertools
+from collections import defaultdict
 
 SUBKEYS = {'Location': ['Locality', 'Country', 'Place Name',
                  'Administrative Area', 'Longitude', 'Latitude'],
@@ -350,6 +351,10 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
     # The traceback is helpful, so I'm letting it through
     # it might be nice to clean up the error message, someday
 
-    for k, g in itertools.groupby(j, lambda e: e['Date'].strftime(filename_template)):
-        yield k, template.render(journal=list(g))
+    output_groups = defaultdict(list)
+    for e in j:
+        output_groups[e['Date'].strftime(filename_template)].append(e)
+
+    for k in output_groups:
+        yield k, template.render(journal=output_groups[k])
 
