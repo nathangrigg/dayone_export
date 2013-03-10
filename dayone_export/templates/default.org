@@ -1,0 +1,24 @@
+{% for entry in journal %}
+* {{ entry['Date'] | format('%Y%m%d-%H%M00%z') }} - dayone journal export
+** journal entry metadata
+   UUID: {{ entry['UUID'] }}
+{% if entry['Tags'] %}
+   tags: {{ entry['Tags'] }}
+{% endif %}
+{% if entry.place() %}
+  place: {{ entry.place() }}
+{% endif %}
+{% if entry['Weather'] %}
+weather: {{ entry.weather('F') }}
+{% endif %}
+{% if entry['Latitude'] %}
+ coords: {{ entry['Latitude'] }} / {{ entry['Longitude'] }} (lat/lon)
+{% endif %}
+** entry
+{% if entry['Photo'] %}[[file:{{ entry['Photo'] }}]]{% endif %}
+
+#+BEGIN_SRC markdown
+{{ entry['Text'] }}
+#+END_SRC
+
+{% endfor %}
