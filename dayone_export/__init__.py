@@ -258,7 +258,7 @@ def _filter_by_after_date(journal, date):
 
 def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
     after=None, format=None, template_dir=None, autobold=False, nl2br=False,
-    time_grouper=""):
+    filename_template=""):
     """Render a template using entries from a Day One journal.
 
     :param dayone_folder: Name of Day One folder; generally ends in ``.dayone``.
@@ -290,11 +290,11 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
     :type autobold: bool
     :param nl2br:  Specifies that new lines should be translated in to <br>s
     :type nl2br: bool
-    :type time_grouper: string
-    :param time_grouper: Time strftime format. 
-                When it changes, new template is created. 
-                If specified, function becomes an interator returning the next template.
-    :returns: Filled in template as string.
+    :type filename_template: string
+    :param filename_template: An eventual filename, which can include strftime formatting codes. 
+                Each time the result of formatting an entry's timestamp with this changes,
+                a new result will be returned.              
+    :returns: Iterator yielding (filename, filled_in_template) as strings on each iteration.
     """
 
     # figure out which template to use
@@ -342,14 +342,14 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
 
 
     # Split into groups, possibly of length one
-    # Generate a new output for each time the 'time_grouper' changes.
-    # Yield the resulting time_grouper plus the output.
-    # If the time_grouper is an empty string (the default), we'll get
+    # Generate a new output for each time the 'filename_template' changes.
+    # Yield the resulting filename_template plus the output.
+    # If the filename_template is an empty string (the default), we'll get
     # an empty grouper plus the rendering of the full list of entries.
     # This may throw an exception if the template is malformed.
     # The traceback is helpful, so I'm letting it through
     # it might be nice to clean up the error message, someday
 
-    for k, g in itertools.groupby(j, lambda e: e['Date'].strftime(time_grouper)):
+    for k, g in itertools.groupby(j, lambda e: e['Date'].strftime(filename_template)):
         yield k, template.render(journal=list(g))
 

@@ -40,8 +40,6 @@ def parse_args(args=None):
       help="autobold first lines (titles) of posts")
     parser.add_argument('--nl2br', action="store_true",
       help="convert each new line to a <br>")
-    parser.add_argument('--time-group', metavar="FMT", default="",
-      help="create new file each time this strftime-format suffix changes")
 
     parser.add_argument('--version', action='version', version=VERSION)
     return parser.parse_args(args)
@@ -88,16 +86,16 @@ def run(args=None):
         generator = dayone_export(args.journal, template=args.template,
           reverse=args.reverse, tags=tags, after=args.after,
           format=args.format, template_dir=args.template_dir,
-          autobold=args.autobold, nl2br=args.nl2br, time_grouper=args.time_group)
+          autobold=args.autobold, nl2br=args.nl2br, filename_template=args.output)
     except jinja2.TemplateNotFound as err:
         return "Template not found: {0}".format(err)
 
     try:
         
-        # Output is a generator returning each file's name suffix and contents one at a time
-        for suffix, output in generator:
+        # Output is a generator returning each file's name and contents one at a time
+        for filename, output in generator:
             if args.output:
-                with codecs.open(args.output + suffix, 'w', encoding='utf-8') as f:
+                with codecs.open(filename, 'w', encoding='utf-8') as f:
                     f.write(output)
             else:
                 print_bytes(output.encode('utf-8'))
