@@ -1,39 +1,45 @@
+0.6.0
+  - Allow strftime syntax in output filename to create multiple output files.
+    Note this means you must now escape literal percent signs in output
+    filename. (Quentin Stafford-Fraser)
+  - Add org mode template (Steve Ulrich)
+
 0.5.0
-    Adjust default html template to allow block quote styling
-    Adjust default markdown template to include images
+  - Adjust default html template to allow block quote styling
+  - Adjust default markdown template to include images
 
 0.4.1
-    Entry.weather() helper function
-    Latex template support
-    Bug fix in base 64 encode filter
+  - Entry.weather() helper function
+  - Latex template support
+  - Bug fix in base 64 encode filter
 
 0.4.0
-    Major bug fix: time zone calculation error
+  - Major bug fix: time zone calculation error
 
 0.3.0
-    Markdown extensions for footnotes and tables
-    New option to autobold first line
-    New option to convert newlines to <br>s.
-    Hashtags at the beginnings of lines are no longer treated as headings
-    Autolink urls
+  - Markdown extensions for footnotes and tables
+  - New option to autobold first line
+  - New option to convert newlines to <br>s.
+  - Hashtags at the beginnings of lines are no longer treated as headings
+  - Autolink urls
 
 0.2.0
-    Supports Day One's native tag format
-    Supports Day One's native Timezone format
-    Fixed compatibility with Python 2.6
-    Simplify Entry.place() arguments
+  - Supports Day One's native tag format
+  - Supports Day One's native Timezone format
+  - Fixed compatibility with Python 2.6
+  - Simplify Entry.place() arguments
 
 0.1.1
-    Bug fixes
-    Better documentation
-    Improve setuptools experience
-    Remove stray comma from default template
+  - Bug fixes
+  - Better documentation
+  - Improve setuptools experience
+  - Remove stray comma from default template
 
 0.1.0
-    Arrange source into package format and upload to PyPI
-    Ability to filter entries by hash tags
-    Ability to filter by time using --after
-    Option base64 encoding for images in html
+  - Arrange source into package format and upload to PyPI
+  - Ability to filter entries by hash tags
+  - Ability to filter by time using --after
+  - Option base64 encoding for images in html
 
 (unnumbered)
-    First published to Github
+  - First published to Github
