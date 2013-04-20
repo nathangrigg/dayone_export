@@ -1,3 +1,6 @@
+0.6.1
+  - Fix github url
+
 0.6.0
   - Allow strftime syntax in output filename to create multiple output files.
     Note this means you must now escape literal percent signs in output
