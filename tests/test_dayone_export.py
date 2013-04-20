@@ -122,6 +122,20 @@ class TestJournalParser(unittest.TestCase):
         filtered = doe._filter_by_tag(self.j, ['porcupine'])
         self.assertEqual(len(filtered), 0)
 
+    @patch('jinja2.Template.render')
+    def test_file_splitter(self, mock_render):
+        gen = doe.dayone_export(fake_journal)
+        self.assertEqual(len(list(gen)), 1)
+        # If doing careful date comparisons, beware of timezones
+        gen = doe.dayone_export(fake_journal, filename_template="%Y")
+        fnames = sorted(fn for fn, _ in gen)
+        self.assertEqual(fnames, ["2011", "2012"])
+        gen = doe.dayone_export(fake_journal, filename_template="%Y%m%d")
+        fnames = sorted(fn for fn, _ in gen)
+        self.assertEqual(fnames, ["20111231", "20120101", "20120902"])
+
+
+
 class TestTemplateInheritance(unittest.TestCase):
     def setUp(self):
         self.patcher1 = patch('jinja2.ChoiceLoader', side_effect=lambda x:x)
@@ -215,6 +229,7 @@ class TestCLI(unittest.TestCase):
         expected = "Template not found"
         self.assertTrue(actual.startswith(expected), actual)
 
+
 class TestMarkdown(unittest.TestCase):
     """Test the markdown formatter"""
     def setUp(self):
@@ -299,6 +314,7 @@ class TestLatex(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_latex_sanity(self):
-        actual = doe.dayone_export(fake_journal, format='tex')
+        _, actual = next(doe.dayone_export(fake_journal, format='tex'))
         expected = r'\documentclass'
         self.assertEqual(actual[:14], expected)
+
