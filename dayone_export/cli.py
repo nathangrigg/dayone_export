@@ -23,7 +23,9 @@ def parse_args(args=None):
         as the output file.""")
     parser.add_argument('journal', help="path to Day One journal package")
     parser.add_argument('--output', metavar="FILE",
-      help="file to write, or filename template (default print to stdout)")
+      help="file to write (default print to stdout). "
+            "Using strftime syntax will produce multiple "
+            "output files with entries grouped by date.")
     parser.add_argument('--format', metavar="FMT",
       help="output format (default guess from output file extension)")
     parser.add_argument('--template', metavar="NAME",
@@ -91,7 +93,7 @@ def run(args=None):
         return "Template not found: {0}".format(err)
 
     try:
-        
+
         # Output is a generator returning each file's name and contents one at a time
         for filename, output in generator:
             if args.output:

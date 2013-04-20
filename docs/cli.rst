@@ -14,20 +14,23 @@ Basic Usage
     Export Day One entries using a Jinja template
 
     positional arguments:
-      journal             path to Day One journal package
+    journal             path to Day One journal package
 
     optional arguments:
-      -h, --help          show this help message and exit
-      --output FILE       file to write (default print to stdout) or filename template
-      --format FMT        output format (default guess from output file extension)
-      --template NAME     name or file of template to use
-      --template-dir DIR  location of templates (default ~/.dayone_export)
-      --tags TAGS         export entries with these comma-separated tags. Tag
-                          'any' has a special meaning.
-      --after DATE        export entries published after this date
-      --reverse           display in reverse chronological order
-      --autobold          autobold first lines (titles) of posts
-      --nl2br             convert each new line to a <br>
+    -h, --help          show this help message and exit
+    --output FILE       file to write (default print to stdout). Using strftime
+                        syntax will produce multiple output files with entries
+                        grouped by date.
+    --format FMT        output format (default guess from output file extension)
+    --template NAME     name or file of template to use
+    --template-dir DIR  location of templates (default ~/.dayone_export)
+    --tags TAGS         export entries with these comma-separated tags. Tag
+                        'any' has a special meaning.
+    --after DATE        export entries published after this date
+    --reverse           display in reverse chronological order
+    --autobold          autobold first lines (titles) of posts
+    --nl2br             convert each new line to a <br>
+    --version           show program's version number and exit
 
     If the Day One package has photos, you may need to copy the "photos" folder
     from the package into the same directory as the output file.
@@ -98,17 +101,20 @@ Template filenames and grouping
 -------------------------------
 
 The ``--output`` option specifies the output filename if you
-want something other than stdout.  
+want something other than stdout.
 
-It also has another feature: you can include strftime-style formatting codes,
-in which case multiple files will be produced, each containing the journal entries 
-with timestamps that result in the same filename.
+It also has another feature: you can include strftime-style_ formatting codes,
+in which case multiple files will be produced, each containing the journal
+entries with timestamps that result in the same filename.
 
 Examples:
 
-  ``--output journal_%Y_%m.md`` will produces monthly files named journal_2013_02.md etc.
+  ``--output journal_%Y_%m.md`` will produces monthly files named
+  journal_2013_02.md etc.
 
   ``--output diary_%a.html`` will produce a separate file for each weekday.
 
+Note that if you want a literal ``%`` in your output filename, you will need
+to escape it as ``%%``.
 
-
+.. _strftime-style: http://docs.python.org/2/library/datetime.html#strftime-strptime-behavior
