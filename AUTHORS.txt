@@ -1,12 +1,8 @@
-Original author:
-Nathan Grigg <nathan@nathanamy.org>
+Written by Nathan Grigg <nathan@nathanamy.org>
 
-Contributors:
+Contributions by Alexander Artemenko, Evan Lovely, Philip Lundrigan, Quentin
+Stafford-Fraser, Stephan Heuel, and steve ulrich. For more information,
+clone the git repository and run `git log --format='%aN <%aE>' | sort -u`
 
-- Alexander Artemenko <svetlyak.40wt@gmail.com>
-- Stephan Heuel <mail@ping13.net>
-
-Code components:
-
-- mdx_urlize, part of the marky project, by Byron Ruth
-    (https://github.com/bruth/marky)
+This project also makes use of mdx_urlize, which is part of the marky project
+by Byron Ruth (https://github.com/bruth/marky)
