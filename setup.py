@@ -33,7 +33,7 @@ setup(
     packages = ["dayone_export"],
     package_data={'dayone_export': ['templates/*']},
     include_package_data = True,
-    url = 'https://github.com/nathan11g/dayone_export/',
+    url = 'https://github.com/nathangrigg/dayone_export/',
     entry_points = {
         'console_scripts': ['dayone_export = dayone_export.cli:run']
     },

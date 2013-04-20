@@ -5,8 +5,8 @@ by Nathan Grigg
 
 [![Build status][statusimage]][statuslink]
 
-[statusimage]: https://api.travis-ci.org/nathan11g/dayone_export.png?branch=master
-[statuslink]: https://travis-ci.org/nathan11g/dayone_export
+[statusimage]: https://api.travis-ci.org/nathangrigg/dayone_export.png?branch=master
+[statuslink]: https://travis-ci.org/nathangrigg/dayone_export
 
 # Installation
 
