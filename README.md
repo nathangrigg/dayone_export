@@ -20,6 +20,10 @@ or download the source and install
 (`python setup.py install`).
 
 
+Depending on how your Python installation is configured, you may
+need extra permissions to install packages. If so, prefix the
+installation command by `sudo` and a space.
+
 Any of these methods will also install the dependencies
 [Jinja2][1], [pytz][2], [python-dateutil][6], and  [Markdown][3].
 
