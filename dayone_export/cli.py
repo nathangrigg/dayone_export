@@ -22,7 +22,7 @@ def parse_args(args=None):
         the "photos" folder from the package into the same directory
         as the output file.""")
     parser.add_argument('journal', help="path to Day One journal package")
-    parser.add_argument('--output', metavar="FILE",
+    parser.add_argument('--output', metavar="FILE", default="",
       help="file to write (default print to stdout). "
             "Using strftime syntax will produce multiple "
             "output files with entries grouped by date.")
