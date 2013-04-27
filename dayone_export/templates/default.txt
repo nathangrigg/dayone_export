@@ -1,0 +1,6 @@
+{% for entry in journal %}
+	Date:	{{ entry['Date']|format('%x %X') }}
+
+{{ entry['Text'] }}
+
+{% endfor %}
