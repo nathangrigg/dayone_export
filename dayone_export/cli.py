@@ -13,6 +13,18 @@ import os
 import sys
 
 
+def template_not_found_message(template):
+    message = ["Template not found: {0}".format(template),
+            "Use the `--template` option to specify a template."]
+    try:
+        from pkg_resources import resource_listdir
+        message.extend(["The following templates are built-in:"] +
+                resource_listdir('dayone_export', 'templates'))
+    except ImportError:
+        pass
+    return '\n'.join(message)
+
+
 def parse_args(args=None):
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(
@@ -84,13 +96,10 @@ def run(args=None):
         except (ValueError, OverflowError):
             return "Unable to parse date '{0}'".format(args.after)
 
-    try:
-        generator = dayone_export(args.journal, template=args.template,
-          reverse=args.reverse, tags=tags, after=args.after,
-          format=args.format, template_dir=args.template_dir,
-          autobold=args.autobold, nl2br=args.nl2br, filename_template=args.output)
-    except jinja2.TemplateNotFound as err:
-        return "Template not found: {0}".format(err)
+    generator = dayone_export(args.journal, template=args.template,
+        reverse=args.reverse, tags=tags, after=args.after,
+        format=args.format, template_dir=args.template_dir,
+        autobold=args.autobold, nl2br=args.nl2br, filename_template=args.output)
 
     try:
 
@@ -103,6 +112,8 @@ def run(args=None):
                 print_bytes(output.encode('utf-8'))
                 print_bytes("\n".encode('utf-8'))
 
+    except jinja2.TemplateNotFound as err:
+        return template_not_found_message(err)
     except IOError as err:
         return str(err)
 

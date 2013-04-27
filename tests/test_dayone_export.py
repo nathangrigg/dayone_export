@@ -223,7 +223,7 @@ class TestCLI(unittest.TestCase):
         expected = 'Not a valid Day One package'
         self.assertTrue(actual.startswith(expected), actual)
 
-    @patch('dayone_export.cli.dayone_export', side_effect=jinja2.TemplateNotFound('msg'))
+    @patch('dayone_export.jinja2.Template.render', side_effect=jinja2.TemplateNotFound('msg'))
     def test_template_not_found(self, mock_doe):
         actual = dayone_export.cli.run([fake_journal])
         expected = "Template not found"
@@ -317,4 +317,3 @@ class TestLatex(unittest.TestCase):
         _, actual = next(doe.dayone_export(fake_journal, format='tex'))
         expected = r'\documentclass'
         self.assertEqual(actual[:14], expected)
-
