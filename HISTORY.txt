@@ -1,3 +1,8 @@
+0.6.2
+  - Fix bug when printing to stdout
+  - Fix bug and improve message when no template found
+  - New template for plain text
+
 0.6.1
   - Fix github url
 
