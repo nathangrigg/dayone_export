@@ -11,6 +11,10 @@ You can learn a lot from their excellent
 
 __ http://jinja.pocoo.org/docs/templates/
 
+When making your own template, a great place to start from is one of
+Day One Export's `built-in templates`__.
+
+__ https://github.com/nathangrigg/dayone_export/tree/master/dayone_export/templates
 
 The journal variable
 --------------------
@@ -221,4 +225,3 @@ For more details on Jinja templates, see the
 `Jinja template designer documentation`__.
 
 __ http://jinja.pocoo.org/docs/templates/
-
