@@ -1,4 +1,4 @@
-Written by Nathan Grigg <nathan@nathanamy.org>
+Written by Nathan Grigg <nathan@nathangrigg.net>
 
 Contributions by Alexander Artemenko, Evan Lovely, Philip Lundrigan, Quentin
 Stafford-Fraser, Stephan Heuel, and steve ulrich. For more information,

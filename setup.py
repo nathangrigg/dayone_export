@@ -29,7 +29,7 @@ setup(
     version = '0.6.2',
     description = "Export Day One journal using Jinja2 templates",
     author = "Nathan Grigg",
-    author_email = "nathan@nathanamy.org",
+    author_email = "nathan@nathangrigg.net",
     packages = ["dayone_export"],
     package_data={'dayone_export': ['templates/*']},
     include_package_data = True,
