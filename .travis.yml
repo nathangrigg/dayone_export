@@ -2,9 +2,7 @@ language: python
 python:
     - "2.7"
     - "3.3"
-    - "3.4"
 install:
-    - test $TRAVIS_PYTHON_VERSION = "2.6" && pip install argparse || echo
     - pip install . --use-mirrors
 script: cd tests && nosetests
 
