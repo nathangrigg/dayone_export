@@ -16,10 +16,6 @@ import os
 import pytz
 from collections import defaultdict
 
-SUBKEYS = {'Location': ['Locality', 'Country', 'Place Name',
-                 'Administrative Area', 'Longitude', 'Latitude'],
-               'Weather': ['Fahrenheit', 'Celsius', 'Description', 'IconName']}
-
 
 class Entry(object):
     """Parse a single journal entry.
@@ -31,13 +27,14 @@ class Entry(object):
     minor exceptions:
 
     - What Day One calls "Entry Text", we call "Text".
-    - The "Location" and "Weather" dictionaries are flattened,
-      so that their subkeys are accessible as keys of the main dictionary
-    - The "Photo" key is added and should contain the path to attached photo
-    - The "Date" key is added and should contain the localized date.
+    - The "Location", "Weather", "Creator", and "Music" dictionaries are
+      flattened, so that their subkeys are accessible as keys of the main
+      dictionary.
+    - The "Photo" key is added and contains the path to attached photo.
+    - The "Date" key is added and contains the localized date.
 
-    Note that the "Creation Date" contains a naive date as defined
-    by the plist which should correspond to a UTC time.
+    Note that the "Creation Date" contains a naive date (that is, with no
+    attached time zone) corresponding to the UTC time.
     """
 
     def __init__(self, filename):
@@ -52,7 +49,7 @@ class Entry(object):
 
         # aliases and flattening
         self.data['Text'] = self.data.pop('Entry Text', "")
-        for key in ['Location', 'Weather']:
+        for key in ['Location', 'Weather', 'Music', 'Creator']:
             if key in self.data:
                 new_keys = ((k, v) for k, v in self.data[key].items()
                             if k not in self.data) # prevent overwrite
@@ -356,4 +353,3 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
 
     for k in output_groups:
         yield k, template.render(journal=output_groups[k])
-

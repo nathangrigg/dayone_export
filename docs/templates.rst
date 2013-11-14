@@ -56,21 +56,43 @@ would include the following line in your template::
 
 Here are some keys that an entry may have:
 
-- ``Date``
-- ``Text``
-- ``Starred``
-- ``UUID``
-- ``Photo`` (the relative path of the corresponding photo, if it exists)
-- ``Place Name`` (e.g. Boom Noodle)
-- ``Locality`` (e.g. Seattle)
-- ``Administrative Area`` (e.g. Washington)
-- ``Country`` (e.g. United States)
-- ``Longitude``
-- ``Latitude``
-- ``Fahrenheit``
-- ``Celsius``
-- ``Description`` (this refers to the weather)
-- ``IconName`` (also refers to weather)
+- Basic information:
+    - ``Date``
+    - ``Text``
+    - ``Starred`` (boolean)
+    - ``UUID``
+    - ``Activity``: Description of motion activity, e.g. "Stationary"
+    - ``Step Count``: Number of steps from the motion sensor
+    - ``Photo`` (the relative path of the corresponding photo, if it exists)
+- Information about the location:
+    - ``Place Name`` (e.g. Boom Noodle)
+    - ``Locality`` (e.g. Seattle)
+    - ``Administrative Area`` (e.g. Washington)
+    - ``Country`` (e.g. United States)
+    - ``Longitude``
+    - ``Latitude``
+- Information about the currently-playing music:
+    - ``Album``
+    - ``Artist``
+    - ``Track``
+- Information about weather:
+    - ``Fahrenheit``
+    - ``Celsius``
+    - ``Description``
+    - ``IconName``
+    - ``Sunrise Date``: The date and time of sunrise
+    - ``Sunset Date``: The date and time of sunset
+    - ``Visibility KM``
+    - ``Relative Humidity``
+    - ``Pressure MB``
+    - ``Wind Bearing``
+    - ``Wind Chill Celsius``
+    - ``Wind Speed KPH``
+- Information about the creation device:
+    - ``Device Agent``
+    - ``Host Name``
+    - ``OS Agent``
+    - ``Software Agent``
 
 Jinja will just leave a blank space if you try to access a nonexistent key.
 So if an entry has no location information, ``{{ entry['Latitude'] }}``
