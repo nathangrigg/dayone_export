@@ -17,6 +17,7 @@ class TestEntryObject(unittest.TestCase):
         self.no_location = doe.Entry(fake_journal + '/entries/00-first.doentry')
         self.entry.set_time_zone('America/Los_Angeles')
         self.entry.set_localized_date('America/Los_Angeles')
+        self.last_entry = doe.Entry(fake_journal + '/entries/zz-last.doentry')
 
     def test_tags(self):
         self.assertEqual(self.entry.data['Tags'], ['tag'])
@@ -69,7 +70,16 @@ class TestEntryObject(unittest.TestCase):
         self.assertRaises(KeyError, lambda:self.entry['foo'])
 
     def test_getitem_flattened_dict(self):
-        self.assertEqual(self.entry['Country'], self.entry['Location']['Country'])
+        self.assertEqual(
+                self.entry['Country'], self.entry['Location']['Country'])
+        self.assertEqual(
+                self.last_entry['Album'], self.last_entry['Music']['Album'])
+        self.assertEqual(
+                self.last_entry['Host Name'],
+                self.last_entry['Creator']['Host Name'])
+        self.assertEqual(
+                self.last_entry['Relative Humidity'],
+                self.last_entry['Weather']['Relative Humidity'])
 
     def test_get_keys_are_actually_keys(self):
         for key in self.entry.keys():
@@ -122,6 +132,7 @@ class TestJournalParser(unittest.TestCase):
         filtered = doe._filter_by_tag(self.j, ['porcupine'])
         self.assertEqual(len(filtered), 0)
 
+
     @patch('jinja2.Template.render')
     def test_file_splitter(self, mock_render):
         gen = doe.dayone_export(fake_journal)
@@ -129,10 +140,10 @@ class TestJournalParser(unittest.TestCase):
         # If doing careful date comparisons, beware of timezones
         gen = doe.dayone_export(fake_journal, filename_template="%Y")
         fnames = sorted(fn for fn, _ in gen)
-        self.assertEqual(fnames, ["2011", "2012"])
+        self.assertEqual(fnames, ["2011", "2012", "2013"])
         gen = doe.dayone_export(fake_journal, filename_template="%Y%m%d")
         fnames = sorted(fn for fn, _ in gen)
-        self.assertEqual(fnames, ["20111231", "20120101", "20120902"])
+        self.assertEqual(fnames, ["20111231", "20120101", "20131113"])
 
 
 
