@@ -1,3 +1,6 @@
+0.6.3
+  - Support for newer versions of Day One Export (specifically 1.12 for iOS).
+
 0.6.2
   - Fix bug when printing to stdout
   - Fix bug and improve message when no template found
