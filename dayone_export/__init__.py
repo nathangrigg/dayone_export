@@ -183,7 +183,7 @@ def parse_journal(foldername):
                 pass
 
     # make it a list and sort
-    journal = journal.values()
+    journal = list(journal.values())
     journal.sort(key=itemgetter('Creation Date'))
 
     # add timezone info
