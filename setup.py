@@ -19,6 +19,10 @@ except ImportError:
     sys.exit("""Error: Setuptools is required for installation.
  -> http://pypi.python.org/pypi/setuptools""")
 
+if sys.version_info < (2, 7) or (
+        sys.version_info[0] == 3 and sys.version_info < (3, 3)):
+    sys.exit("Requires Python 2.7 or Python 3.3 or higher.")
+
 setup(
     name = "dayone_export",
     version = '0.6.3',
