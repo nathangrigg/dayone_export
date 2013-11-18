@@ -8,10 +8,7 @@ import sys
 import base64
 import pytz
 import markdown
-try:
-    from io import BytesIO
-except ImportError:
-    from cStringIO import BytesIO
+from io import BytesIO
 
 class WarnOnce(object):
     """Issue a warning only one time.
