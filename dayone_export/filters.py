@@ -8,7 +8,10 @@ import sys
 import base64
 import pytz
 import markdown
-from StringIO import StringIO
+try:
+    from io import BytesIO
+except ImportError:
+    from cStringIO import BytesIO
 
 class WarnOnce(object):
     """Issue a warning only one time.
@@ -116,7 +119,7 @@ else:
         filename, ext = os.path.splitext(infile)
         im = Image.open(dayone_folder + "/" + infile)
         im.thumbnail(size, Image.ANTIALIAS)
-        output = StringIO()
+        output = BytesIO()
         im.save(output, "jpeg")  # we assume that we get best compressions with jpeg
         base64data = output.getvalue().encode("base64")
         return "data:image/jpeg;base64,%s" % (base64data)
