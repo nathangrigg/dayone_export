@@ -122,15 +122,15 @@ class TestJournalParser(unittest.TestCase):
 
     def test_tags_any_tag(self):
         filtered = doe._filter_by_tag(self.j, 'any')
-        self.assertEqual(len(filtered), 1)
+        self.assertEqual(len(list(filtered)), 1)
 
     def test_tags_one_tag(self):
         filtered = doe._filter_by_tag(self.j, ['tag'])
-        self.assertEqual(len(filtered), 1)
+        self.assertEqual(len(list(filtered)), 1)
 
     def test_tags_no_matches(self):
         filtered = doe._filter_by_tag(self.j, ['porcupine'])
-        self.assertEqual(len(filtered), 0)
+        self.assertEqual(len(list(filtered)), 0)
 
 
     @patch('jinja2.Template.render')
