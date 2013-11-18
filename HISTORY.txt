@@ -1,3 +1,6 @@
+0.7.0
+  - Native Python 3 support.
+
 0.6.3
   - Support for newer versions of Day One Export (specifically 1.12 for iOS).
 
