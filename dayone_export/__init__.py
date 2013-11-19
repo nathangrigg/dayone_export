@@ -8,6 +8,7 @@
 
 from operator import itemgetter
 from functools import partial
+from . import compat
 from . import filters
 from .version import VERSION
 import jinja2
@@ -102,7 +103,7 @@ class Entry(object):
             levels = list(range(levels))
         if ignore is None:
             ignore = []
-        if isinstance(ignore, basestring):
+        if isinstance(ignore, compat.string_types):
             ignore = [ignore]
 
         # make sure there is a location set
@@ -183,7 +184,7 @@ def parse_journal(foldername):
                 pass
 
     # make it a list and sort
-    journal = journal.values()
+    journal = list(journal.values())
     journal.sort(key=itemgetter('Creation Date'))
 
     # add timezone info

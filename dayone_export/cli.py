@@ -4,7 +4,7 @@
 #
 # For help, run `dayone_export --help`
 
-from . import dayone_export, VERSION
+from . import dayone_export, VERSION, compat
 import dateutil.parser
 import jinja2
 import argparse
@@ -58,13 +58,6 @@ def parse_args(args=None):
     parser.add_argument('--version', action='version', version=VERSION)
     return parser.parse_args(args)
 
-def print_bytes(s):
-    """Print bytes to stdout in Python 2 or 3"""
-    if sys.version_info[0] == 2:
-        sys.stdout.write(s)
-    else:
-        sys.stdout.buffer.write(s)
-
 # command line interface
 def run(args=None):
     args = parse_args(args)
@@ -109,8 +102,8 @@ def run(args=None):
                 with codecs.open(filename, 'w', encoding='utf-8') as f:
                     f.write(output)
             else:
-                print_bytes(output.encode('utf-8'))
-                print_bytes("\n".encode('utf-8'))
+                compat.print_bytes(output.encode('utf-8'))
+                compat.print_bytes("\n".encode('utf-8'))
 
     except jinja2.TemplateNotFound as err:
         return template_not_found_message(err)

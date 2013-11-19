@@ -17,12 +17,11 @@ try:
     from setuptools import setup
 except ImportError:
     sys.exit("""Error: Setuptools is required for installation.
- -> http://pypi.python.org/pypi/setuptools
- or http://pypi.python.org/pypi/distribute""")
+ -> http://pypi.python.org/pypi/setuptools""")
 
-extra = {}
-if sys.version_info >= (3,):
-    extra['use_2to3'] = True
+if sys.version_info < (2, 7) or (
+        sys.version_info[0] == 3 and sys.version_info < (3, 3)):
+    sys.exit("Requires Python 2.7 or Python 3.3 or higher.")
 
 setup(
     name = "dayone_export",
@@ -60,5 +59,4 @@ setup(
         "Topic :: Utilities",
         "Topic :: Text Processing :: General"
         ],
-    **extra
 )

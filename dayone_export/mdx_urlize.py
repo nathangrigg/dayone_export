@@ -10,7 +10,7 @@ import time
 PROTOCOL_MATCH = re.compile(r'^(news|telnet|nttp|file|http|ftp|https)')
 # from John Gruber
 URLIZE_RE = '(?!%s)' % markdown.util.INLINE_PLACEHOLDER_PREFIX[1:] + \
-    ur'''(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))'''
+    r'''(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?''' + u"«»“”‘’]))"
 
 class UrlizePattern(markdown.inlinepatterns.Pattern):
     def handleMatch(self, m):
