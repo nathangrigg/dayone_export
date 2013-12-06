@@ -26,6 +26,7 @@ Basic Usage
     --template-dir DIR  location of templates (default ~/.dayone_export)
     --tags TAGS         export entries with these comma-separated tags. Tag
                         'any' has a special meaning.
+    --exclude TAGS      exclude entries with these comma-separated tags
     --after DATE        export entries published after this date
     --reverse           display in reverse chronological order
     --autobold          autobold first lines (titles) of posts
@@ -67,6 +68,9 @@ Use the ``--tags`` option with a comma-separated list of tags to include.
 
 If you use the option ``--tags any``, then any entry with at least one tag
 will be included.
+
+Also, you can exclude entries with specified tags, by using the ``--exclude``
+option.
 
 Limit export to recent entries
 ------------------------------
