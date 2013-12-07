@@ -248,6 +248,13 @@ def _filter_by_tag(journal, tags):
 
     return filter(tag_filter, journal)
 
+def _exclude_tags(journal, tags):
+    """remain only entries without specified tags"""
+
+    remain_filter = lambda item: 'Tags' not in item or not set(item['Tags']).intersection(set(tags))
+
+    return filter(remain_filter, journal)
+
 def _filter_by_after_date(journal, date):
     """return a list of entries after date
 
@@ -255,8 +262,8 @@ def _filter_by_after_date(journal, date):
     return [item for item in journal if item['Creation Date'] > date]
 
 def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
-    after=None, format=None, template_dir=None, autobold=False, nl2br=False,
-    filename_template=""):
+    exclude=None, after=None, format=None, template_dir=None, autobold=False,
+    nl2br=False, filename_template=""):
     """Render a template using entries from a Day One journal.
 
     :param dayone_folder: Name of Day One folder; generally ends in ``.dayone``.
@@ -270,6 +277,8 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
                  Tags are interpreted as words at the end of an entry
                  beginning with ``#``.
     :type tags: list of strings
+    :param exclude: Exclude all entries with given tags.
+    :type exclude: list of strings
     :param after: Only include entries after the given date.
     :type after: naive datetime
     :param format: The file extension of the default template to use.
@@ -335,6 +344,8 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
         j = _filter_by_after_date(j, after)
     if tags is not None:
         j = _filter_by_tag(j, tags)
+    if exclude is not None:
+        j = _exclude_tags(j, exclude)
     if reverse:
         j.reverse()
 

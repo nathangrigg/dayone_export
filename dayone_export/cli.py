@@ -46,6 +46,8 @@ def parse_args(args=None):
       help='location of templates (default ~/.dayone_export)')
     parser.add_argument('--tags',
       help='export entries with these comma-separated tags. Tag \'any\' has a special meaning.')
+    parser.add_argument('--exclude',
+      help='exclude entries with these comma-separated tags')
     parser.add_argument('--after', metavar='DATE',
       help='export entries published after this date')
     parser.add_argument('--reverse', action="store_true",
@@ -82,6 +84,11 @@ def run(args=None):
         if tags != 'any':
             tags = [tag.strip() for tag in tags.split(',')]
 
+    # excluded tags
+    excluded_tags = args.exclude
+    if excluded_tags is not None:
+        excluded_tags = [tag.strip() for tag in excluded_tags.split(',')]
+
     # parse after date
     if args.after:
         try:
@@ -90,8 +97,8 @@ def run(args=None):
             return "Unable to parse date '{0}'".format(args.after)
 
     generator = dayone_export(args.journal, template=args.template,
-        reverse=args.reverse, tags=tags, after=args.after,
-        format=args.format, template_dir=args.template_dir,
+        reverse=args.reverse, tags=tags, exclude=excluded_tags,
+        after=args.after, format=args.format, template_dir=args.template_dir,
         autobold=args.autobold, nl2br=args.nl2br, filename_template=args.output)
 
     try:
