@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Creation Date</key>
+	<date>2013-12-07T12:48:01Z</date>
+	<key>Entry Text</key>
+	<string>4: Basic example with uniq tag and no time zone</string>
+	<key>Starred</key>
+	<false/>
+	<key>UUID</key>
+	<string>00F9FA91D39096A09638DC0866EC74B2</string>
+	<key>Tags</key>
+	<array>
+	    <string>absolutelyuniqtag22</string>
+	</array>
+</dict>
+</plist>

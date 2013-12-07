@@ -118,11 +118,11 @@ class TestJournalParser(unittest.TestCase):
 
     def test_after_filter(self):
         filtered = doe._filter_by_after_date(self.j, datetime(2012, 9, 1))
-        self.assertEqual(len(filtered), 1)
+        self.assertEqual(len(filtered), 2)
 
     def test_tags_any_tag(self):
         filtered = doe._filter_by_tag(self.j, 'any')
-        self.assertEqual(len(list(filtered)), 1)
+        self.assertEqual(len(list(filtered)), 2)
 
     def test_tags_one_tag(self):
         filtered = doe._filter_by_tag(self.j, ['tag'])
@@ -132,6 +132,20 @@ class TestJournalParser(unittest.TestCase):
         filtered = doe._filter_by_tag(self.j, ['porcupine'])
         self.assertEqual(len(list(filtered)), 0)
 
+    def test_exclude_nonexistent_tag(self):
+        actual_size = len(self.j)
+        after_exlusion = doe._exclude_tags(self.j, ['porcupine'])
+        self.assertEqual(actual_size, len(list(after_exlusion)))
+
+    def test_exclude_multiple_nonexistent_tags(self):
+        actual_size = len(self.j)
+        after_exlusion = doe._exclude_tags(self.j, ['porcupine', 'nosuchtag'])
+        self.assertEqual(actual_size, len(list(after_exlusion)))
+
+    def test_exclude_tag(self):
+        actual_size = len(self.j)
+        after_exlusion = doe._exclude_tags(self.j, ['absolutelyuniqtag22'])
+        self.assertEqual(len(list(after_exlusion)), actual_size-1)
 
     @patch('jinja2.Template.render')
     def test_file_splitter(self, mock_render):
@@ -143,7 +157,7 @@ class TestJournalParser(unittest.TestCase):
         self.assertEqual(fnames, ["2011", "2012", "2013"])
         gen = doe.dayone_export(fake_journal, filename_template="%Y%m%d")
         fnames = sorted(fn for fn, _ in gen)
-        self.assertEqual(fnames, ["20111231", "20120101", "20131113"])
+        self.assertEqual(fnames, ["20111231", "20120101", "20131113", "20131207"])
 
 
 
