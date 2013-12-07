@@ -249,11 +249,11 @@ def _filter_by_tag(journal, tags):
     return filter(tag_filter, journal)
 
 def _exclude_tags(journal, tags):
-    """exclude all entries with specified tags"""
+    """remain only entries without specified tags"""
 
-    exclude_filter = lambda item: 'Tags' in item and not set(item['Tags']).intersection(set(tags))
+    remain_filter = lambda item: 'Tags' not in item or not set(item['Tags']).intersection(set(tags))
 
-    return filter(exclude_filter, journal)
+    return filter(remain_filter, journal)
 
 def _filter_by_after_date(journal, date):
     """return a list of entries after date
