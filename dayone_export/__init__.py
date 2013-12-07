@@ -251,7 +251,7 @@ def _filter_by_tag(journal, tags):
 def _exclude_tags(journal, tags):
     """exclude all entries with specified tags"""
 
-    exclude_filter = lambda item: 'Tags' in item and set(item['Tags']).difference(set(tags))
+    exclude_filter = lambda item: 'Tags' in item and not set(item['Tags']).intersection(set(tags))
 
     return filter(exclude_filter, journal)
 
