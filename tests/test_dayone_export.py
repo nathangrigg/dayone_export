@@ -147,6 +147,12 @@ class TestJournalParser(unittest.TestCase):
         after_exlusion = doe._exclude_tags(self.j, ['absolutelyuniqtag22'])
         self.assertEqual(len(list(after_exlusion)), actual_size-1)
 
+    def test_tags_and_exclude_combined(self):
+        actual_size = len(self.j)
+        filtered = doe._filter_by_tag(self.j, 'any')
+        after_exlusion = doe._exclude_tags(filtered, ['absolutelyuniqtag22'])
+        self.assertEqual(len(list(after_exlusion)), 1)
+
     @patch('jinja2.Template.render')
     def test_file_splitter(self, mock_render):
         gen = doe.dayone_export(fake_journal)

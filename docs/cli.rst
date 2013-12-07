@@ -70,7 +70,7 @@ If you use the option ``--tags any``, then any entry with at least one tag
 will be included.
 
 Also, you can exclude entries with specified tags, by using the ``--exclude``
-option.
+option. Note that ``--exclude`` has a priority over ``--tags``.
 
 Limit export to recent entries
 ------------------------------
