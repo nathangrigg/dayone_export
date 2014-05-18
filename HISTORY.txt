@@ -1,3 +1,6 @@
+0.7.1
+  - Exclude entries with specific tags (Anton Parkhomenko)
+
 0.7.0
   - Native Python 3 support.
 
