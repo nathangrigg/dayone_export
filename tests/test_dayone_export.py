@@ -6,6 +6,7 @@ import os
 import jinja2
 from datetime import datetime
 import pytz
+import locale
 
 this_path = os.path.split(os.path.abspath(__file__))[0]
 fake_journal = os.path.join(this_path, 'fake_journal')
@@ -348,3 +349,27 @@ class TestLatex(unittest.TestCase):
         _, actual = next(doe.dayone_export(fake_journal, format='tex'))
         expected = r'\documentclass'
         self.assertEqual(actual[:14], expected)
+
+
+class TestDateFormat(unittest.TestCase):
+    def setUp(self):
+        locale.setlocale(locale.LC_ALL, "C")
+        self.date = datetime(2014, 2, 3)
+
+    def test_default_format(self):
+        expected = 'Monday, Feb 3, 2014'
+        self.assertEqual(expected, doe.filters.format(self.date))
+        self.assertEqual(expected, doe.filters._strftime_portable(self.date))
+
+    def test_format_leave_zero(self):
+        expected = '2014-02-03'
+        self.assertEqual(expected, doe.filters.format(self.date, '%Y-%m-%d'))
+        self.assertEqual(
+            expected, doe.filters._strftime_portable(self.date, '%Y-%m-%d'))
+
+    def test_format_remove_zero(self):
+        expected = '2/3/2014'
+        self.assertEqual(
+            expected, doe.filters.format(self.date, '%-m/%-d/%Y'))
+        self.assertEqual(
+            expected, doe.filters._strftime_portable(self.date, '%-m/%-d/%Y'))

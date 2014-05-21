@@ -10,6 +10,10 @@ import pytz
 import markdown
 from io import BytesIO
 
+MARKER = 'zpoqjd_marker_zpoqjd'
+RE_PERCENT_MINUS = re.compile(r'(?<!%)%-')
+RE_REMOVE_MARKER = re.compile(MARKER + '0*')
+
 class WarnOnce(object):
     """Issue a warning only one time.
 
@@ -70,10 +74,20 @@ def markdown_filter(autobold=False, nl2br=False):
 #############################
 # Date formatting
 #############################
-def format(value, fmt='%A, %b %e, %Y', tz=None):
+def format(value, fmt='%A, %b %-d, %Y', tz=None):
+    """Format a date or time."""
+
     if tz:
         value = value.astimezone(pytz.timezone(tz))
-    return value.strftime(fmt)
+    try:
+        return value.strftime(fmt)
+    except ValueError:
+        return _strftime_portable(value, fmt)
+
+def _strftime_portable(value, fmt='%A, %b %-d, %Y'):
+    marked = value.strftime(RE_PERCENT_MINUS.sub(MARKER + "%", fmt))
+    return RE_REMOVE_MARKER.sub("", marked)
+
 
 #############################
 # Escape Latex (http://flask.pocoo.org/snippets/55/)
