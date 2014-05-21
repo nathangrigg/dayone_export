@@ -9,6 +9,7 @@ import dateutil.parser
 import jinja2
 import argparse
 import codecs
+import locale
 import os
 import sys
 
@@ -62,6 +63,7 @@ def parse_args(args=None):
 
 # command line interface
 def run(args=None):
+    locale.setlocale(locale.LC_ALL, '')
     args = parse_args(args)
 
     # determine output format
