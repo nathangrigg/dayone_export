@@ -8,7 +8,7 @@
 \maketitle
 
 \CMD{for entry in journal}
-    \section{\VAR{entry['Date'] | format('%A, %b %e, %Y at %-I:%M %p %Z')}}
+    \section{\VAR{entry['Date'] | format('%A, %b %-d, %Y at %-I:%M %p %Z')}}
     \VAR{entry['Text'] | escape_tex}
     \CMD{if 'Photo' in entry}
         \begin{figure}[h!]
