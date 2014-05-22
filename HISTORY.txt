@@ -1,8 +1,12 @@
+0.8.0
+  - Begin using user's locale for strftime
+  - Make Windows compatible
+
 0.7.1
   - Exclude entries with specific tags (Anton Parkhomenko)
 
 0.7.0
-  - Native Python 3 support.
+  - Native Python 3 support
 
 0.6.3
   - Support for newer versions of Day One Export (specifically 1.12 for iOS).
