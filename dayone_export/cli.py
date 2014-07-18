@@ -50,7 +50,9 @@ def parse_args(args=None):
     parser.add_argument('--exclude',
       help='exclude entries with these comma-separated tags')
     parser.add_argument('--after', metavar='DATE',
-      help='export entries published after this date')
+      help='export entries published on or after this date')
+    parser.add_argument('--before', metavar='DATE',
+      help='export entries published before this date')
     parser.add_argument('--reverse', action="store_true",
       help="display in reverse chronological order")
     parser.add_argument('--autobold', action="store_true",
@@ -91,17 +93,29 @@ def run(args=None):
     if excluded_tags is not None:
         excluded_tags = [tag.strip() for tag in excluded_tags.split(',')]
 
-    # parse after date
-    if args.after:
-        try:
-            args.after = dateutil.parser.parse(args.after)
-        except (ValueError, OverflowError):
-            return "Unable to parse date '{0}'".format(args.after)
+    # parse before and after date
+    dates = [args.before, args.after]
+    for i, date in enumerate(dates):
+        if date:
+            try:
+                dates[i] = dateutil.parser.parse(date)
+            except (ValueError, OverflowError):
+                return "Unable to parse date '{0}'".format(date)
+    before, after = dates
 
-    generator = dayone_export(args.journal, template=args.template,
-        reverse=args.reverse, tags=tags, exclude=excluded_tags,
-        after=args.after, format=args.format, template_dir=args.template_dir,
-        autobold=args.autobold, nl2br=args.nl2br, filename_template=args.output)
+    generator = dayone_export(
+            args.journal,
+            template=args.template,
+            reverse=args.reverse,
+            tags=tags,
+            exclude=excluded_tags,
+            before=before,
+            after=after,
+            format=args.format,
+            template_dir=args.template_dir,
+            autobold=args.autobold,
+            nl2br=args.nl2br,
+            filename_template=args.output)
 
     try:
 

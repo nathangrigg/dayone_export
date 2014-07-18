@@ -8,17 +8,17 @@ from datetime import datetime
 import pytz
 import locale
 
-this_path = os.path.split(os.path.abspath(__file__))[0]
-fake_journal = os.path.join(this_path, 'fake_journal')
+THIS_PATH = os.path.split(os.path.abspath(__file__))[0]
+FAKE_JOURNAL = os.path.join(THIS_PATH, 'FAKE_JOURNAL')
 
 class TestEntryObject(unittest.TestCase):
     def setUp(self):
-        self.entry = doe.Entry(fake_journal + '/entries/full.doentry')
+        self.entry = doe.Entry(FAKE_JOURNAL + '/entries/full.doentry')
         self.entry.set_photo('foo')
-        self.no_location = doe.Entry(fake_journal + '/entries/00-first.doentry')
+        self.no_location = doe.Entry(FAKE_JOURNAL + '/entries/00-first.doentry')
         self.entry.set_time_zone('America/Los_Angeles')
         self.entry.set_localized_date('America/Los_Angeles')
-        self.last_entry = doe.Entry(fake_journal + '/entries/zz-last.doentry')
+        self.last_entry = doe.Entry(FAKE_JOURNAL + '/entries/zz-last.doentry')
 
     def test_tags(self):
         self.assertEqual(self.entry.data['Tags'], ['tag'])
@@ -88,7 +88,7 @@ class TestEntryObject(unittest.TestCase):
 
 class TestJournalParser(unittest.TestCase):
     def setUp(self):
-        self.j = doe.parse_journal(fake_journal)
+        self.j = doe.parse_journal(FAKE_JOURNAL)
 
     def test_automatically_set_photos(self):
         expected = 'photos/00F9FA96F29043D09638DF0866EC73B2.jpg'
@@ -103,23 +103,36 @@ class TestJournalParser(unittest.TestCase):
 
     @patch('jinja2.Template.render')
     def test_dayone_export_run(self, mock_render):
-        doe.dayone_export(fake_journal)
+        doe.dayone_export(FAKE_JOURNAL)
         mock_render.assert_called()
 
     @patch('jinja2.Template.render')
     def test_dayone_export_run_with_naive_after(self, mock_render):
-        doe.dayone_export(fake_journal, after=datetime(2012, 9, 1))
+        doe.dayone_export(FAKE_JOURNAL, after=datetime(2012, 9, 1))
         mock_render.assert_called()
 
     @patch('jinja2.Template.render')
     def test_dayone_export_run_with_localized_after(self, mock_render):
         after = pytz.timezone('America/New_York').localize(datetime(2012, 9, 1))
-        doe.dayone_export(fake_journal, after=after)
+        doe.dayone_export(FAKE_JOURNAL, after=after)
         mock_render.assert_called()
 
     def test_after_filter(self):
-        filtered = doe._filter_by_after_date(self.j, datetime(2012, 9, 1))
+        filtered = doe._filter_by_date(self.j, datetime(2013, 11, 14), None)
         self.assertEqual(len(filtered), 2)
+        filtered = doe._filter_by_date(self.j, datetime(2013, 11, 15), None)
+        self.assertEqual(len(filtered), 1)
+
+    def test_before_filter(self):
+        filtered = doe._filter_by_date(self.j, None, datetime(2013, 11, 14))
+        self.assertEqual(len(filtered), 2)
+        filtered = doe._filter_by_date(self.j, None, datetime(2013, 11, 15))
+        self.assertEqual(len(filtered), 3)
+
+    def test_two_sided_date_filter(self):
+        filtered = doe._filter_by_date(
+                self.j, datetime(2013, 11, 14), datetime(2013, 11, 15))
+        self.assertEqual(len(filtered), 1)
 
     def test_tags_any_tag(self):
         filtered = doe._filter_by_tag(self.j, 'any')
@@ -156,13 +169,13 @@ class TestJournalParser(unittest.TestCase):
 
     @patch('jinja2.Template.render')
     def test_file_splitter(self, mock_render):
-        gen = doe.dayone_export(fake_journal)
+        gen = doe.dayone_export(FAKE_JOURNAL)
         self.assertEqual(len(list(gen)), 1)
         # If doing careful date comparisons, beware of timezones
-        gen = doe.dayone_export(fake_journal, filename_template="%Y")
+        gen = doe.dayone_export(FAKE_JOURNAL, filename_template="%Y")
         fnames = sorted(fn for fn, _ in gen)
         self.assertEqual(fnames, ["2011", "2012", "2013"])
-        gen = doe.dayone_export(fake_journal, filename_template="%Y%m%d")
+        gen = doe.dayone_export(FAKE_JOURNAL, filename_template="%Y%m%d")
         fnames = sorted(fn for fn, _ in gen)
         self.assertEqual(fnames, ["20111231", "20120101", "20131113", "20131207"])
 
@@ -238,14 +251,14 @@ class TestCLI(unittest.TestCase):
 
     @patch('dayone_export.cli.dayone_export', return_value="")
     def test_tag_splitter_protects_any(self, mock_doe):
-        dayone_export.cli.run(['--tags', 'any', fake_journal])
+        dayone_export.cli.run(['--tags', 'any', FAKE_JOURNAL])
         expected = 'any'
         actual = mock_doe.call_args[1]['tags']
         self.assertEqual(expected, actual)
 
     @patch('dayone_export.cli.dayone_export', return_value="")
     def test_tag_splitter(self, mock_doe):
-        dayone_export.cli.run(['--tags', 'a, b', fake_journal])
+        dayone_export.cli.run(['--tags', 'a, b', FAKE_JOURNAL])
         expected = ['a', 'b']
         actual = mock_doe.call_args[1]['tags']
         self.assertEqual(expected, actual)
@@ -257,7 +270,7 @@ class TestCLI(unittest.TestCase):
 
     @patch('dayone_export.jinja2.Template.render', side_effect=jinja2.TemplateNotFound('msg'))
     def test_template_not_found(self, mock_doe):
-        actual = dayone_export.cli.run([fake_journal])
+        actual = dayone_export.cli.run([FAKE_JOURNAL])
         expected = "Template not found"
         self.assertTrue(actual.startswith(expected), actual)
 
@@ -346,7 +359,7 @@ class TestLatex(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_latex_sanity(self):
-        _, actual = next(doe.dayone_export(fake_journal, format='tex'))
+        _, actual = next(doe.dayone_export(FAKE_JOURNAL, format='tex'))
         expected = r'\documentclass'
         self.assertEqual(actual[:14], expected)
 

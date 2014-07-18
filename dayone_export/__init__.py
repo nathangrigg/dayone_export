@@ -255,14 +255,31 @@ def _exclude_tags(journal, tags):
 
     return filter(remain_filter, journal)
 
-def _filter_by_after_date(journal, date):
+def _filter_by_date(journal, after, before):
     """return a list of entries after date
 
-    :param date: A naive datetime representing a UTC time"""
-    return [item for item in journal if item['Creation Date'] > date]
+    :param before: A naive datetime representing a UTC time.
+    :param after: A naive datetime representing a UTC time
+    """
+    if after is None and before is None:
+        return journal
+    return [item for item in journal
+            if (after is None or item['Creation Date'] >= after) and
+               (before is None or item['Creation Date'] < before)]
+
+def _convert_to_utc(date, default_tz):
+    """Convert date to UTC, using default_tz if no time zone is set."""
+    if date is None:
+        return date
+    if date.tzinfo is None:
+        date = default_tz.localize(date)
+    date.astimezone(pytz.utc)
+    # strip timezone info
+    return date.replace(tzinfo=None)
+
 
 def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
-    exclude=None, after=None, format=None, template_dir=None, autobold=False,
+    exclude=None, before=None, after=None, format=None, template_dir=None, autobold=False,
     nl2br=False, filename_template=""):
     """Render a template using entries from a Day One journal.
 
@@ -279,7 +296,9 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
     :type tags: list of strings
     :param exclude: Exclude all entries with given tags.
     :type exclude: list of strings
-    :param after: Only include entries after the given date.
+    :param before: Only include entries on before the given date.
+    :type before: naive datetime
+    :param after: Only include entries on or after the given date.
     :type after: naive datetime
     :param format: The file extension of the default template to use.
     :type format: string
@@ -333,15 +352,10 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
     j = parse_journal(dayone_folder)
 
     # filter and manipulate based on options
-    if after is not None:
-        if after.tzinfo is None:
-            # set timezone to mirror last journal entry
-            after = j[-1]["Date"].tzinfo.localize(after)
-        # convert to UTC
-        after.astimezone(pytz.utc)
-        # strip timezone info
-        after = after.replace(tzinfo=None)
-        j = _filter_by_after_date(j, after)
+    default_tz = j[-1]["Date"].tzinfo
+    after = _convert_to_utc(after, default_tz)
+    before = _convert_to_utc(before, default_tz)
+    j = _filter_by_date(j, after=after, before=before)
     if tags is not None:
         j = _filter_by_tag(j, tags)
     if exclude is not None:
