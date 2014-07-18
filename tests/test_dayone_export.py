@@ -9,7 +9,7 @@ import pytz
 import locale
 
 THIS_PATH = os.path.split(os.path.abspath(__file__))[0]
-FAKE_JOURNAL = os.path.join(THIS_PATH, 'FAKE_JOURNAL')
+FAKE_JOURNAL = os.path.join(THIS_PATH, 'fake_journal')
 
 class TestEntryObject(unittest.TestCase):
     def setUp(self):
