@@ -1,3 +1,7 @@
+0.8.1
+  - Add --before filter to command line interface.
+  - Pass current date to Jinja templates.
+
 0.8.0
   - Begin using user's locale for strftime
   - Make Windows compatible
