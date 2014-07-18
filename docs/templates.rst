@@ -19,7 +19,7 @@ __ https://github.com/nathangrigg/dayone_export/tree/master/dayone_export/templa
 The journal variable
 --------------------
 
-The program passes a single variable to the template, which is named
+The most important variable that the program passes to the template is named
 ``journal``. This is a list of Entry_ objects, each of which
 represents a single journal entry.
 
@@ -35,6 +35,12 @@ like this::
     {% endfor %}
 
     ... End of document stuff, etc ...
+
+
+Other variables
+---------------
+
+    - ``today``: The current date.
 
 
 .. _Entry:

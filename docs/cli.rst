@@ -27,7 +27,8 @@ Basic Usage
     --tags TAGS         export entries with these comma-separated tags. Tag
                         'any' has a special meaning.
     --exclude TAGS      exclude entries with these comma-separated tags
-    --after DATE        export entries published after this date
+    --after DATE        export entries published on or after this date
+    --before DATE       export entries published before this date
     --reverse           display in reverse chronological order
     --autobold          autobold first lines (titles) of posts
     --nl2br             convert each new line to a <br>
