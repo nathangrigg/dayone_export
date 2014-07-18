@@ -16,6 +16,7 @@ import plistlib
 import os
 import pytz
 from collections import defaultdict
+from datetime import datetime
 
 
 class Entry(object):
@@ -377,5 +378,6 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
     for e in j:
         output_groups[e['Date'].strftime(filename_template)].append(e)
 
+    today = datetime.today()
     for k in output_groups:
-        yield k, template.render(journal=output_groups[k])
+        yield k, template.render(journal=output_groups[k], today=today)
