@@ -21,5 +21,5 @@ class AutoboldExtension(markdown.Extension):
     def extendMarkdown(self, md, md_globals):
         md.preprocessors['autobold'] = AutoboldPreprocessor(md)
 
-def makeExtension(configs=None) :
-    return AutoboldExtension(configs=configs)
+def makeExtension(**kwargs) :
+    return AutoboldExtension(**kwargs)

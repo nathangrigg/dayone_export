@@ -30,5 +30,5 @@ class UrlizeExtension(markdown.Extension):
     def extendMarkdown(self, md, md_globals):
         md.inlinePatterns['urlize'] = UrlizePattern(URLIZE_RE, md)
 
-def makeExtension(configs=None):
-    return UrlizeExtension(configs=configs)
+def makeExtension(**kwargs):
+    return UrlizeExtension(**kwargs)

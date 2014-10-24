@@ -42,7 +42,7 @@ setup(
     install_requires = ['Jinja2>=2.6',
                         'pytz',
                         'python-dateutil>=2.1',
-                        'Markdown>=2.2.0'],
+                        'Markdown>=2.5.1'],
     classifiers = [
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",

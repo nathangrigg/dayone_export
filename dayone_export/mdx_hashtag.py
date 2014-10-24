@@ -26,5 +26,5 @@ class HashtagExtension(markdown.Extension):
     def extendMarkdown(self, md, md_globals):
         md.preprocessors.add('hashtag', HashtagPreprocessor(md), '>reference')
 
-def makeExtension(configs=None) :
-    return HashtagExtension(configs=configs)
+def makeExtension(**kwargs) :
+    return HashtagExtension(**kwargs)
