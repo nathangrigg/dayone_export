@@ -59,14 +59,15 @@ def parse_args(args=None):
       help="autobold first lines (titles) of posts")
     parser.add_argument('--nl2br', action="store_true",
       help="convert each new line to a <br>")
+    parser.add_argument('--locale', help=argparse.SUPPRESS, default="")
 
     parser.add_argument('--version', action='version', version=VERSION)
     return parser.parse_args(args)
 
 # command line interface
 def run(args=None):
-    locale.setlocale(locale.LC_ALL, '')
     args = parse_args(args)
+    locale.setlocale(locale.LC_ALL, args.locale)
 
     # determine output format
     if args.format is None:
