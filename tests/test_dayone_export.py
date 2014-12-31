@@ -11,6 +11,10 @@ import locale
 THIS_PATH = os.path.split(os.path.abspath(__file__))[0]
 FAKE_JOURNAL = os.path.join(THIS_PATH, 'fake_journal')
 
+def reset_locale():
+    locale.setlocale(locale.LC_ALL, "C")
+
+
 class TestEntryObject(unittest.TestCase):
     def setUp(self):
         self.entry = doe.Entry(FAKE_JOURNAL + '/entries/full.doentry')
@@ -343,6 +347,9 @@ class TestMarkdown(unittest.TestCase):
         self.assertEqual(expected, actual)
 
 class TestLatex(unittest.TestCase):
+    def setUp(self):
+        reset_locale()
+
     def test_latex_escape_backslash(self):
         actual = doe.filters.escape_tex(r'bl\ah')
         expected = r'bl\textbackslash{}ah'
@@ -366,7 +373,7 @@ class TestLatex(unittest.TestCase):
 
 class TestDateFormat(unittest.TestCase):
     def setUp(self):
-        locale.setlocale(locale.LC_ALL, "C")
+        reset_locale()
         self.date = datetime(2014, 2, 3)
 
     def test_default_format(self):
@@ -386,3 +393,19 @@ class TestDateFormat(unittest.TestCase):
             expected, doe.filters.format(self.date, '%-m/%-d/%Y'))
         self.assertEqual(
             expected, doe.filters._strftime_portable(self.date, '%-m/%-d/%Y'))
+
+class TestDefaultTemplates(unittest.TestCase):
+    def setUp(self):
+        self.silencer = patch('sys.stdout')
+        self.silencer.start()
+
+    def tearDown(self):
+        self.silencer.stop()
+
+    def test_default_html_template_english(self):
+        code = dayone_export.cli.run(["--locale", "en_US.UTF-8", FAKE_JOURNAL])
+        self.assertFalse(code)
+
+    def test_default_html_template_french(self):
+        code = dayone_export.cli.run(["--locale", "fr_CH.UTF-8", FAKE_JOURNAL])
+        self.assertFalse(code)
