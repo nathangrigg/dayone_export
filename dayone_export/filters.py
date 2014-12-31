@@ -2,17 +2,19 @@
 # All rights reserved.
 # BSD License
 
+import base64
+from io import BytesIO
+import locale
+import markdown
 import os
+import pytz
 import re
 import sys
-import base64
-import pytz
-import markdown
-from io import BytesIO
 
 MARKER = 'zpoqjd_marker_zpoqjd'
 RE_PERCENT_MINUS = re.compile(r'(?<!%)%-')
 RE_REMOVE_MARKER = re.compile(MARKER + '0*')
+UNICODE_TYPE = type(u"")
 
 class WarnOnce(object):
     """Issue a warning only one time.
@@ -80,9 +82,20 @@ def format(value, fmt='%A, %b %-d, %Y', tz=None):
     if tz:
         value = value.astimezone(pytz.timezone(tz))
     try:
-        return value.strftime(fmt)
+        formatted = value.strftime(fmt)
     except ValueError:
-        return _strftime_portable(value, fmt)
+        formatted = _strftime_portable(value, fmt)
+
+    # Workaround for python 2.7, which returns bytes from strftime.
+    if not isinstance(formatted, UNICODE_TYPE):
+        try:
+            formatted = formatted.decode("ascii")
+        except UnicodeDecodeError:
+            _, encoding = locale.getlocale(locale.LC_ALL)
+            formatted = formatted.decode(encoding)
+
+    return formatted
+
 
 def _strftime_portable(value, fmt='%A, %b %-d, %Y'):
     marked = value.strftime(RE_PERCENT_MINUS.sub(MARKER + "%", fmt))
