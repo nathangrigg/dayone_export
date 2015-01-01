@@ -1,3 +1,6 @@
+0.8.3
+  - Fix unicode error caused by certain locale settings in Python 2.
+
 0.8.2
   - Fix markdown extension bug caused by new version of python-markdown.
 
