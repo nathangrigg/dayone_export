@@ -14,6 +14,20 @@ FAKE_JOURNAL = os.path.join(THIS_PATH, 'fake_journal')
 def reset_locale():
     locale.setlocale(locale.LC_ALL, "C")
 
+def has_locale(loc):
+    try:
+        locale.setlocale(locale.LC_ALL, loc)
+    except locale.Error:
+        return False
+    reset_locale()
+    return True
+
+
+LOCALE = {"en": "en_US.UTF-8", "fr": "fr_CH.UTF-8"}
+MISSING_LOCALES = {x for x in LOCALE.values() if not has_locale(x)}
+SkipIfMissingLocale = lambda loc: unittest.skipIf(
+        loc in MISSING_LOCALES, "System lacks locale {}".format(loc))
+
 
 class TestEntryObject(unittest.TestCase):
     def setUp(self):
@@ -402,10 +416,12 @@ class TestDefaultTemplates(unittest.TestCase):
     def tearDown(self):
         self.silencer.stop()
 
+    @SkipIfMissingLocale(LOCALE["en"])
     def test_default_html_template_english(self):
-        code = dayone_export.cli.run(["--locale", "en_US.UTF-8", FAKE_JOURNAL])
+        code = dayone_export.cli.run(["--locale", LOCALE["en"], FAKE_JOURNAL])
         self.assertFalse(code)
 
+    @SkipIfMissingLocale(LOCALE["fr"])
     def test_default_html_template_french(self):
-        code = dayone_export.cli.run(["--locale", "fr_CH.UTF-8", FAKE_JOURNAL])
+        code = dayone_export.cli.run(["--locale", LOCALE["fr"], FAKE_JOURNAL])
         self.assertFalse(code)
