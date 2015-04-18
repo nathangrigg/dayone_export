@@ -18,6 +18,8 @@ import pytz
 from collections import defaultdict
 from datetime import datetime
 
+class PlistError(Exception):
+    pass
 
 class Entry(object):
     """Parse a single journal entry.
@@ -42,8 +44,14 @@ class Entry(object):
     def __init__(self, filename):
         try:
             self.data = plistlib.readPlist(filename)
-        except Exception as err:
-            raise IOError("Can't read {0}\n{1}".format(filename, err))
+        except AttributeError as err:  # See #25.
+            if str(err) == "'NoneType' object has no attribute 'groupdict'":
+                raise PlistError(
+                    'Unable to parse {} due to invalid ISO 8601 date.'
+                    .format(filename))
+            raise
+        except IOError as err:
+            raise PlistError('Unable to read {}: {}'.format(filename, repr(err)))
 
         # Required fields
         if "Creation Date" not in self.data:

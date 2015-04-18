@@ -10,6 +10,7 @@ import locale
 
 THIS_PATH = os.path.split(os.path.abspath(__file__))[0]
 FAKE_JOURNAL = os.path.join(THIS_PATH, 'fake_journal')
+REGRESSION_JOURNAL = os.path.join(THIS_PATH, 'regression')
 
 def reset_locale():
     locale.setlocale(locale.LC_ALL, "C")
@@ -425,3 +426,15 @@ class TestDefaultTemplates(unittest.TestCase):
     def test_default_html_template_french(self):
         code = dayone_export.cli.run(["--locale", LOCALE["fr"], FAKE_JOURNAL])
         self.assertFalse(code)
+
+class TestRegression(unittest.TestCase):
+    def setUp(self):
+        self.silencer = patch('sys.stdout')
+        self.silencer.start()
+
+    def tearDown(self):
+        self.silencer.stop()
+
+    def test_regression(self):
+        with self.assertRaisesRegexp(doe.PlistError, "ISO 8601"):
+            doe.Entry(os.path.join(REGRESSION_JOURNAL, "entries/bad-date.doentry"))
