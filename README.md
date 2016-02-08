@@ -1,3 +1,9 @@
+# Notice
+
+This tool is not compatible with the Day One 2.0 journal format.
+
+# Introduction
+
 Export [Day One][0] journal entries into html, text, or another format
 using a Jinja template.
 
