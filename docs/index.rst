@@ -3,6 +3,11 @@ Table of Contents
 
 .. note::
 
+   This tool is not compatible with the Day One 2.0 journal format.
+
+
+.. note::
+
    The Day One Export project is hosted at
    http://github.com/nathangrigg/dayone_export.
 
@@ -17,4 +22,3 @@ Table of Contents
    templates
    module
    timezones
-
