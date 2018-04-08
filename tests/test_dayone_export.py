@@ -122,18 +122,18 @@ class TestJournalParser(unittest.TestCase):
 
     @patch('jinja2.Template.render')
     def test_dayone_export_run(self, mock_render):
-        doe.dayone_export(FAKE_JOURNAL)
+        list(doe.dayone_export(FAKE_JOURNAL))
         mock_render.assert_called()
 
     @patch('jinja2.Template.render')
     def test_dayone_export_run_with_naive_after(self, mock_render):
-        doe.dayone_export(FAKE_JOURNAL, after=datetime(2012, 9, 1))
+        list(doe.dayone_export(FAKE_JOURNAL, after=datetime(2012, 9, 1)))
         mock_render.assert_called()
 
     @patch('jinja2.Template.render')
     def test_dayone_export_run_with_localized_after(self, mock_render):
         after = pytz.timezone('America/New_York').localize(datetime(2012, 9, 1))
-        doe.dayone_export(FAKE_JOURNAL, after=after)
+        list(doe.dayone_export(FAKE_JOURNAL, after=after))
         mock_render.assert_called()
 
     def test_after_filter(self):
