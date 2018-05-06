@@ -49,18 +49,18 @@ img.entry-photo {
 <h1 class="page-title">Journal Entries</h1>
 {% for entry in journal %}
 <article class="entry">
-    <h1 class="entry-title">{{ entry['Date']|format }}</h1>
+    <h1 class="entry-title">{{ entry.localDate|format }}</h1>
     <p class="location time">
-        {% if entry.place() %}
-        {{ entry.place() }},
+        {% if format_place(entry) %}
+        {{ format_place(entry) }},
         {% endif %}
-        {{ entry['Date']|format('%-I:%M %p %Z') }}
+        {{ entry.localDate|format('%-I:%M %p %Z') }}
     </p>
     <div class="entry-text">
-        {% if 'Photo' in entry %}
-        <img class="entry-photo" src="{{ entry['Photo'] | imgbase64(600) }}"/>
-        {% endif %}
-        {{ entry['Text'] | markdown }}
+        {% for photo in entry.photos %}
+        <img class="entry-photo" src="{{ photo.identifier | imgbase64(600) }}"/>
+        {% endfor %}
+        {{ entry.text | markdown }}
     </div>
 </article>
 {% endfor %}

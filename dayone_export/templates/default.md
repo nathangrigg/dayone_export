@@ -1,11 +1,11 @@
 {% for entry in journal %}
-{{ entry['Date']|format }}
+{{ entry.localDate|format }}
 --------------------------
 
-{{ entry['Text'] }}
+{{ entry.text }}
 
-{% if 'Photo' in entry %}
-![Photo for {{entry['Date']|format}}]({{ entry['Photo'] }})
+{% for photo in entry.photos %}
+![Photo for {{entry.localDate|format}}]({{ photo.identifier }})
 {% endif %}
 
 

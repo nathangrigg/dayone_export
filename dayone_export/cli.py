@@ -4,7 +4,7 @@
 #
 # For help, run `dayone_export --help`
 
-from . import dayone_export, VERSION, compat, PlistError
+from . import dayone_export, VERSION, compat, ReadError
 import dateutil.parser
 import jinja2
 import argparse
@@ -80,8 +80,6 @@ def run(args=None):
     args.journal = os.path.expanduser(args.journal)
     if not os.path.exists(args.journal):
         return "File not found: " + args.journal
-    if not os.path.exists(os.path.join(args.journal, 'entries')):
-        return "Not a valid Day One package: " + args.journal
 
     # tags
     tags = args.tags
@@ -131,7 +129,7 @@ def run(args=None):
 
     except jinja2.TemplateNotFound as err:
         return template_not_found_message(err)
-    except PlistError as err:
+    except ReadError as err:
         return str(err)
 
 

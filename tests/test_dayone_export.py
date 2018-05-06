@@ -32,54 +32,49 @@ SkipIfMissingLocale = lambda loc: unittest.skipIf(
 
 class TestEntryObject(unittest.TestCase):
     def setUp(self):
-        self.entry = doe.Entry(FAKE_JOURNAL + '/entries/full.doentry')
-        self.entry.set_photo('foo')
-        self.no_location = doe.Entry(FAKE_JOURNAL + '/entries/00-first.doentry')
-        self.entry.set_time_zone('America/Los_Angeles')
-        self.entry.set_localized_date('America/Los_Angeles')
-        self.last_entry = doe.Entry(FAKE_JOURNAL + '/entries/zz-last.doentry')
+        j = doe.parse_journal(FAKE_JOURNAL)
+        self.entry = j[1]
+        self.no_location = j[0]
+        self.last_entry = j[3]
 
     def test_tags(self):
-        self.assertEqual(self.entry.data['Tags'], ['tag'])
+        self.assertEqual(self.entry.tags, ['tag'])
 
     def test_set_photo(self):
-        self.assertEqual(self.entry.data['Photo'], 'foo')
+        self.assertEqual(self.entry.photos, ['foo'])
 
     def test_place_no_arguments(self):
         expected = 'Zoo, Seattle, Washington, United States'
-        actual = self.entry.place()
+        actual = doe.format_place(self.entry)
         self.assertEqual(expected, actual)
 
     def test_place_int_argument(self):
         expected = 'Zoo, Seattle, Washington'
-        actual = self.entry.place(3)
+        actual = doe.format_place(self.entry, 3)
         self.assertEqual(expected, actual)
-
-    def test_old_invalid_place_range_argument(self):
-        self.assertRaises(TypeError, self.entry.place, 1, 3)
 
     def test_place_list_argument(self):
         expected = 'Seattle, United States'
-        actual = self.entry.place([1, 3])
+        actual = doe.format_place(self.entry, [1, 3])
         self.assertEqual(expected, actual)
 
     def test_place_no_location(self):
-        self.assertEqual(self.no_location.place(), "")
+        self.assertEqual(doe.format_place(self.no_location), "")
 
     def test_place_ignore_argument(self):
         expected = 'Washington'
-        actual = self.entry.place([2, 3], ignore='United States')
+        actual = doe.format_place(self.entry, [2, 3], ignore='United States')
         self.assertEqual(expected, actual)
 
     def test_getitem_data_key(self):
-        self.assertEqual(self.entry['Photo'], 'foo')
+        self.assertEqual(self.entry.photos, ['foo'])
 
     def test_getitem_text(self):
         expected = '2: Full entry with time zone, location, weather and a tag'
-        self.assertEqual(self.entry['Text'], expected)
+        self.assertEqual(self.entry.text, expected)
 
     def test_getitem_date(self):
-        date = self.entry['Date']
+        date = self.entry.localDate
         naive_date = date.replace(tzinfo = None)
         expected_date = datetime(2012, 1, 1, 16, 0)
         expected_zone = 'America/Los_Angeles'
@@ -88,18 +83,6 @@ class TestEntryObject(unittest.TestCase):
 
     def test_getitem_raises_keyerror(self):
         self.assertRaises(KeyError, lambda:self.entry['foo'])
-
-    def test_getitem_flattened_dict(self):
-        self.assertEqual(
-                self.entry['Country'], self.entry['Location']['Country'])
-        self.assertEqual(
-                self.last_entry['Album'], self.last_entry['Music']['Album'])
-        self.assertEqual(
-                self.last_entry['Host Name'],
-                self.last_entry['Creator']['Host Name'])
-        self.assertEqual(
-                self.last_entry['Relative Humidity'],
-                self.last_entry['Weather']['Relative Humidity'])
 
     def test_get_keys_are_actually_keys(self):
         for key in self.entry.keys():
@@ -111,14 +94,8 @@ class TestJournalParser(unittest.TestCase):
 
     def test_automatically_set_photos(self):
         expected = 'photos/00F9FA96F29043D09638DF0866EC73B2.jpg'
-        actual = self.j[0]['Photo']
+        actual = self.j[0]['photo'][0]
         self.assertEqual(expected, actual)
-
-    def test_sort_order(self):
-        j = self.j
-        k = 'Creation Date'
-        result = j[0][k] <= j[1][k] <= j[2][k]
-        self.assertTrue(result)
 
     @patch('jinja2.Template.render')
     def test_dayone_export_run(self, mock_render):
@@ -426,15 +403,3 @@ class TestDefaultTemplates(unittest.TestCase):
     def test_default_html_template_french(self):
         code = dayone_export.cli.run(["--locale", LOCALE["fr"], FAKE_JOURNAL])
         self.assertFalse(code)
-
-class TestRegression(unittest.TestCase):
-    def setUp(self):
-        self.silencer = patch('sys.stdout')
-        self.silencer.start()
-
-    def tearDown(self):
-        self.silencer.stop()
-
-    def test_regression(self):
-        with self.assertRaisesRegexp(doe.PlistError, "ISO 8601"):
-            doe.Entry(os.path.join(REGRESSION_JOURNAL, "entries/bad-date.doentry"))

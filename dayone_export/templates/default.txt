@@ -1,6 +1,6 @@
 {% for entry in journal %}
-	Date:	{{ entry['Date']|format('%x %X') }}
+	Date:	{{ entry.localDate|format('%x %X') }}
 
-{{ entry['Text'] }}
+{{ entry.text }}
 
 {% endfor %}

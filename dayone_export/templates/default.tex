@@ -8,13 +8,13 @@
 \maketitle
 
 \CMD{for entry in journal}
-    \section{\VAR{entry['Date'] | format('%A, %b %-d, %Y at %-I:%M %p %Z')}}
-    \VAR{entry['Text'] | escape_tex}
-    \CMD{if 'Photo' in entry}
+    \section{\VAR{entry.localDate | format('%A, %b %-d, %Y at %-I:%M %p %Z')}}
+    \VAR{entry.text | escape_tex}
+    \CMD{for photo in entry.photos}
         \begin{figure}[h!]
         \centering
-        \includegraphics[width=0.5\textwidth]{\VAR{entry['Photo']}}
+        \includegraphics[width=0.5\textwidth]{\VAR{photo.identifier}}
         \end{figure}
-    \CMD{endif}
+    \CMD{endfor}
 \CMD{endfor}
 \end{document}
