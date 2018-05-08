@@ -57,10 +57,7 @@ img.entry-photo {
         {{ entry.localDate|format('%-I:%M %p %Z') }}
     </p>
     <div class="entry-text">
-        {% for photo in entry.photos %}
-        <img class="entry-photo" src="{{ photo.identifier | imgbase64(600) }}"/>
-        {% endfor %}
-        {{ entry.text | markdown }}
+        {{ entry.text | markdown | imgbase64(600) }}
     </div>
 </article>
 {% endfor %}

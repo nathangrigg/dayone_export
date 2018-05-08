@@ -56,9 +56,6 @@ blockquote {
         {{ entry.localDate | format('%-I:%M %p %Z') }}
     </p>
     <div class="entry-text">
-        {% for photo in entry.photos %}
-        <img class="entry-photo" src="{{ photo.identifier  }}"/>
-        {% endfor %}
         {{ entry.text | markdown }}
     </div>
 </article>

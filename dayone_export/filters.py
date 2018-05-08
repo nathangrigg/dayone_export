@@ -53,6 +53,7 @@ def markdown_filter(autobold=False, nl2br=False):
                   'def_list',
                   'abbr',
                   'dayone_export.mdx_hashtag',
+                  'dayone_export.mdx_imgclass',
                   'dayone_export.mdx_urlize',
                  ]
 

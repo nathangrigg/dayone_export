@@ -15,8 +15,6 @@ weather: {{ format_weather(entry, 'f') }}
  coords: {{ entry.location.latitude ] }} / {{ entry.location.longitude }} (lat/lon)
 {% endif %}
 ** entry
-{% for photo in entry.photos %}[[file:{{ photo.identifier }}]]{% endfor %}
-
 #+BEGIN_SRC markdown
 {{ entry.text }}
 #+END_SRC

@@ -15,6 +15,7 @@ from operator import itemgetter
 import json
 import os
 import pytz
+import re
 
 from . import compat
 from . import filters
@@ -102,14 +103,14 @@ def format_weather(entry, temperature_type, degree="&deg;"):
     return "{0}{1} {2}".format(temp, degree, desc)
 
 
-def parse_journal(journal_folder):
+def parse_journal(journal_folder, relpath_to_journal=None):
     """Return a list of journal entries parsed from json file.
 
     Each journal entry is encoded as a nested AttrDict as parsed from the json
     file, with a few additions:
 
         - `timeZone` is inferred for entries that are missing `timeZone`.
-        - `creationDate` is converted to a `datetime` object.
+        - `creationDate` is converted to a (naive) `datetime` object.
         - `localDate` is added, which is `creationDate` localized to `timeZone`.
     """
 
@@ -136,6 +137,7 @@ def parse_journal(journal_folder):
             break
 
     tz_name = newest_tz
+    find_re = re.compile(r'dayone-moment://([0-9a-f]+)', flags=re.IGNORECASE)
     for entry in reversed(journal):
         if "timeZone" in entry:
             tz_name = entry["timeZone"]
@@ -152,6 +154,24 @@ def parse_journal(journal_folder):
         entry["creationDate"] = date
         localized_utc = pytz.utc.localize(date)
         entry["localDate"] = localized_utc.astimezone(tz)
+
+        photo_list = entry.get("photos", [])
+        photo_dict = {}
+        for photo in photo_list:
+            try:
+                photo_dict[photo["identifier"]] = photo["md5"]
+            except KeyError:
+                continue
+
+        def replace(match):
+            try:
+                md5 = photo_dict[match.group(1)]
+            except KeyError:
+                return "missing_photo.jpeg"
+            else:
+                return os.path.join(relpath_to_journal, "photos", md5 + ".jpeg")
+
+        entry["text"] = find_re.sub(replace, entry["text"])
 
     return journal
 
@@ -241,7 +261,7 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
     nl2br=False, filename_template=""):
     """Render a template using entries from a Day One journal.
 
-    :param dayone_folder: Name of Day One folder; generally ends in ``.dayone``.
+    :param dayone_folder: Name of Day One folder.
     :type dayone_folder: string
     :param reverse: If true, the entries are formatted in reverse chronological
                     order.
@@ -306,8 +326,13 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
     # load template
     template = env.get_template(template)
 
+    # compute path between output and dayone folder.
+    relpath = os.path.relpath(
+            dayone_folder,
+            os.path.dirname(filename_template) if filename_template else None)
+
     # parse journal
-    j = parse_journal(dayone_folder)
+    j = parse_journal(dayone_folder, relpath)
 
     # filter and manipulate based on options
     default_tz = j[-1]["localDate"].tzinfo
