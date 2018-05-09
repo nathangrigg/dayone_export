@@ -1,3 +1,6 @@
+1.0.0
+  - Final release using old Day One journal format
+
 0.8.3
   - Fix unicode error caused by certain locale settings in Python 2.
 
