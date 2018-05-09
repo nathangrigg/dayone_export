@@ -1,0 +1,77 @@
+{
+"metadata" : {
+  "version" : "1.0"
+},
+"entries" : [
+{
+    "creationDate" : "2012-01-01T00:48:00Z",
+    "text" : "1: Basic example with no time zone",
+    "starred" : false,
+    "uuid" : "00F9FA96F29043D09638DF0866EC73B2"
+},
+{
+	"creationDate" : "2012-01-02T00:00:00Z",
+    "text" : "2: Full entry with time zone, location, weather and a tag",
+    "location" : {
+		"administrativeArea" : "Washington",
+        "country" : "United States",
+        "latitude" : 47.831128653640743,
+        "localityName" : "Seattle",
+		"longitude" : -122.14663693802373,
+		"placeName" : "Zoo"
+    },
+    "starred" : false,
+    "timeZone" : "America/Los_Angeles",
+    "weather" : {
+		"temperatureCelsius" : 16,
+        "conditionsDescription" : "Mostly Sunny"
+    },
+	"uuid" : "00F9FA96F29043D09638DF0866000002",
+    "tags" : [ "tag" ]
+},
+{
+    "userActivity" : "Stationary",
+	"creationDate" : "2013-11-14T01:31:03Z",
+    "creationDevice" : "Nathan's Phone",
+    "text" : "Testing again. ",
+    "location" : {
+		"administrativeArea" : "CA",
+        "country" : "United States",
+        "latitude" : 34.1234,
+		"localityName" : "Santa Barbara",
+		"longitude" : -118.1234,
+		"Place Name" : "Psych HQ"
+    },
+	"music" : {
+		"album" : "Along With Me",
+		"artist" : "Bill Charlap",
+		"track" : "On Green Dolphin Street"
+    },
+	"starred" : false,
+    "userActivity" : {
+        "stepCount" : 2652
+    },
+	"timeZone" : "America/Los_Angeles",
+    "uuid" : "AE742F904B8146DA8A0882D97953AFFA",
+    "weather" : {
+        "temperatureCelsius" : 23,
+        "conditionsDescription" : "Clear",
+		"pressureMB" : 1012,
+		"relativeHumidity" : 44,
+		"service" : "HAMweather",
+		"sunriseDate" : "2013-11-13T14:25:15Z",
+		"sunsetDate" : "2013-11-14T00:50:47Z",
+		"visibilityKM" : 16.093440000000001,
+		"windBearing" : 250,
+		"windChillCelsius" : 23,
+		"windSpeedKPH" : 11
+    }
+},
+{
+    "creationDate" : "2013-12-07T12:48:01Z",
+    "text" : "4: Basic example with uniq tag and no time zone",
+    "starred" : false,
+    "uuid" : "00F9FA91D39096A09638DC0866EC74B2",
+    "tags" : [ "absolutelyuniqtag22" ]
+}
+]}
