@@ -40,9 +40,6 @@ class TestEntryObject(unittest.TestCase):
     def test_tags(self):
         self.assertEqual(self.entry.tags, ['tag'])
 
-    def test_set_photo(self):
-        self.assertEqual(self.entry.photos, ['foo'])
-
     def test_place_no_arguments(self):
         expected = 'Zoo, Seattle, Washington, United States'
         actual = doe.format_place(self.entry)
@@ -66,9 +63,6 @@ class TestEntryObject(unittest.TestCase):
         actual = doe.format_place(self.entry, [2, 3], ignore='United States')
         self.assertEqual(expected, actual)
 
-    def test_getitem_data_key(self):
-        self.assertEqual(self.entry.photos, ['foo'])
-
     def test_getitem_text(self):
         expected = '2: Full entry with time zone, location, weather and a tag'
         self.assertEqual(self.entry.text, expected)
@@ -91,11 +85,6 @@ class TestEntryObject(unittest.TestCase):
 class TestJournalParser(unittest.TestCase):
     def setUp(self):
         self.j = doe.parse_journal(FAKE_JOURNAL)
-
-    def test_automatically_set_photos(self):
-        expected = 'photos/00F9FA96F29043D09638DF0866EC73B2.jpg'
-        actual = self.j[0]['photo'][0]
-        self.assertEqual(expected, actual)
 
     @patch('jinja2.Template.render')
     def test_dayone_export_run(self, mock_render):
@@ -261,7 +250,7 @@ class TestCLI(unittest.TestCase):
 
     def test_invalid_package(self):
         actual = dayone_export.cli.run(['.'])
-        expected = 'Not a valid Day One package'
+        expected = 'Not a valid Day One JSON export'
         self.assertTrue(actual.startswith(expected), actual)
 
     @patch('dayone_export.jinja2.Template.render', side_effect=jinja2.TemplateNotFound('msg'))

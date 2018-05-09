@@ -80,6 +80,8 @@ def run(args=None):
     args.journal = os.path.expanduser(args.journal)
     if not os.path.exists(args.journal):
         return "File not found: " + args.journal
+    if not os.path.exists(os.path.join(args.journal, 'Journal.json')):
+        return "Not a valid Day One JSON export: " + args.journal
 
     # tags
     tags = args.tags

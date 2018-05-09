@@ -12,6 +12,7 @@ from collections import defaultdict
 from datetime import datetime
 from functools import partial
 from operator import itemgetter
+import io
 import json
 import os
 import pytz
@@ -116,7 +117,7 @@ def parse_journal(journal_folder, relpath_to_journal=None):
 
     json_file_name = os.path.join(journal_folder, 'Journal.json')
 
-    with open(json_file_name, "r", encoding="utf-8") as fh:
+    with io.open(json_file_name, "r", encoding="utf-8") as fh:
         parsed = json.load(fh, object_hook=AttrDict)
 
     try:
@@ -329,7 +330,8 @@ def dayone_export(dayone_folder, template=None, reverse=False, tags=None,
     # compute path between output and dayone folder.
     relpath = os.path.relpath(
             dayone_folder,
-            os.path.dirname(filename_template) if filename_template else None)
+            os.path.dirname(filename_template)
+            if filename_template else os.curdir)
 
     # parse journal
     j = parse_journal(dayone_folder, relpath)
