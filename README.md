@@ -1,6 +1,9 @@
 # Notice
 
-This tool is not compatible with the Day One 2.0 journal format.
+**This tool is not compatible with the current Day One journal formats.**
+
+It is not really useful at this point, but I'm leaving it here in case
+someone wants to use it as a jump-off point for updating the tool.
 
 # Introduction
 

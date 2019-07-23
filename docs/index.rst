@@ -3,8 +3,9 @@ Table of Contents
 
 .. note::
 
-   This tool is not compatible with the Day One 2.0 journal format.
-
+   This tool is not compatible with current versions of the Day One journal
+   format, and is probably not useful, except possibly as a jump-off point
+   for someone to make a newer, compatible tool.
 
 .. note::
 
