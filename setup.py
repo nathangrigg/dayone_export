@@ -8,8 +8,6 @@ Basic usage::
 For more information::
 
     dayone_export --help
-
-Full documentation is available at http://day-one-export.readthedocs.org.
 """
 
 import sys

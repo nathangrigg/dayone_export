@@ -1,8 +1,6 @@
-It is a small project, so there is no need to be formal.
+This project is retired; no further contributions accepted.
 
 # Testing
-
-You don't have to include tests with contributions, or even run the tests on your changes, but doing so will of course make things faster and easier.
 
 To run the tests, you have a couple of options.
 
@@ -16,11 +14,6 @@ project directory, and run `nosetests`.
 
 # Building documentation
 
-The documentation is hosted at readthedocs, and will be built automatically
-when merged into the main branch.
-
-If you make changes to the documentation and would like to preview them
-locally, you will need to build the documentation.
 Install [sphinx][3], locate yourself in the `docs` directory and
 run `make html`. Then open the `_build/index.html` page.
 
